@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b2236"/>
+      <stop offset="1" stop-color="#061019"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#34d399" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#34d399" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#fde047" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#fde047" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="top" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4ade80"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="230" r="230" fill="url(#glow)"/>
+  <!-- stars -->
+  <circle cx="96" cy="110" r="7" fill="#fde047"/>
+  <circle cx="412" cy="92" r="5" fill="#e0f2fe"/>
+  <circle cx="430" cy="196" r="6" fill="#fde047"/>
+  <circle cx="74" cy="236" r="4" fill="#e0f2fe"/>
+  <!-- light beam -->
+  <rect x="226" y="70" width="60" height="180" fill="url(#beam)"/>
+  <!-- island underbelly -->
+  <path d="M96 300 L256 386 L416 300 L330 420 L270 470 L230 452 L176 410 Z" fill="#3b2f2a"/>
+  <path d="M256 386 L416 300 L330 420 L270 470 Z" fill="#241c18"/>
+  <path d="M176 396 L196 372 L216 396 L196 432 Z" fill="#38bdf8" opacity="0.9"/>
+  <path d="M296 410 L314 388 L332 410 L314 442 Z" fill="#34d399" opacity="0.9"/>
+  <!-- island sides -->
+  <path d="M96 262 L256 348 L256 386 L96 300 Z" fill="#7c5a3c"/>
+  <path d="M256 348 L416 262 L416 300 L256 386 Z" fill="#5b4029"/>
+  <!-- island top -->
+  <path d="M256 176 L416 262 L256 348 L96 262 Z" fill="url(#top)"/>
+  <path d="M256 196 L380 262 L256 328 L132 262 Z" fill="none" stroke="#bbf7d0" stroke-opacity="0.5" stroke-width="5"/>
+  <!-- rune altar -->
+  <ellipse cx="256" cy="262" rx="74" ry="40" fill="#134e4a" stroke="#fbbf24" stroke-width="10"/>
+  <ellipse cx="256" cy="262" rx="50" ry="26" fill="none" stroke="#fef3c7" stroke-width="6" stroke-dasharray="16 12"/>
+  <!-- gem -->
+  <path d="M256 190 L286 236 L256 276 L226 236 Z" fill="#fde047" stroke="#fff7d6" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M256 190 L286 236 L256 244 Z" fill="#fbbf24"/>
+</svg>

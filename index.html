@@ -1,0 +1,4017 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07111a" />
+  <meta name="description" content="RUNAQUEST: Código Ancestral — 120 fases de aventura e lógica de programação visual sem digitação em ilhas flutuantes com 4 guardiões originais. Pronto para GitHub Pages e PWA." />
+  <title>RUNAQUEST: Código Ancestral</title>
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="RunaQuest" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #07111a;
+      --bg-secondary: #0c1d2b;
+      --bg-card: rgba(13, 30, 44, 0.88);
+      --border-color: rgba(52, 211, 153, 0.28);
+      --accent-primary: #34d399;
+      --accent-secondary: #38bdf8;
+      --text-main: #f0fdf4;
+      --text-muted: #94a3b8;
+      --gold: #fbbf24;
+    }
+
+    [data-theme="desert"] {
+      --bg-primary: #1c1108;
+      --bg-secondary: #2e1b0c;
+      --bg-card: rgba(46, 28, 14, 0.88);
+      --border-color: rgba(251, 191, 36, 0.34);
+      --accent-primary: #f59e0b;
+      --accent-secondary: #38bdf8;
+      --text-main: #fef3c7;
+      --text-muted: #d6bc94;
+      --gold: #fde047;
+    }
+
+    [data-theme="astral"] {
+      --bg-primary: #0b0618;
+      --bg-secondary: #160c2e;
+      --bg-card: rgba(26, 14, 54, 0.88);
+      --border-color: rgba(232, 121, 249, 0.34);
+      --accent-primary: #e879f9;
+      --accent-secondary: #22d3ee;
+      --text-main: #fae8ff;
+      --text-muted: #c084fc;
+      --gold: #facc15;
+    }
+
+    [data-theme="glacial"] {
+      --bg-primary: #081826;
+      --bg-secondary: #102a40;
+      --bg-card: rgba(16, 42, 64, 0.88);
+      --border-color: rgba(125, 211, 252, 0.36);
+      --accent-primary: #38bdf8;
+      --accent-secondary: #a7f3d0;
+      --text-main: #f0f9ff;
+      --text-muted: #bae6fd;
+      --gold: #fde047;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      overflow-x: hidden;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    .font-display { font-family: 'Fredoka', sans-serif; }
+    .font-code { font-family: 'JetBrains Mono', monospace; }
+
+    .glass-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.55);
+    }
+
+    .btn-3d {
+      transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease, filter 0.15s ease;
+    }
+    .btn-3d:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+    .btn-3d:active:not(:disabled) {
+      transform: translateY(2px) scale(0.97);
+    }
+    .btn-3d:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+    }
+
+    @keyframes slotPulse {
+      0%, 100% { transform: scale(1.06); box-shadow: 0 0 0 3px var(--gold), 0 0 16px var(--gold); }
+      50% { transform: scale(1.13); box-shadow: 0 0 0 4px #fff, 0 0 22px var(--gold); }
+    }
+    .slot-executing {
+      animation: slotPulse 0.48s infinite ease-in-out;
+      z-index: 10;
+    }
+
+    @keyframes stickerPop {
+      0% { transform: translate(-50%, 20px) scale(0.3) rotate(-15deg); opacity: 0; }
+      22% { transform: translate(-50%, -15px) scale(1.15) rotate(6deg); opacity: 1; }
+      78% { transform: translate(-50%, -48px) scale(1) rotate(-3deg); opacity: 1; }
+      100% { transform: translate(-50%, -90px) scale(0.85) rotate(4deg); opacity: 0; }
+    }
+    .floating-sticker {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      animation: stickerPop 1.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.55));
+    }
+
+    input, textarea { user-select: text; -webkit-user-select: text; }
+    button, select, label, canvas { touch-action: manipulation; }
+    #gameCanvas { touch-action: pan-y; }
+    button:focus-visible, select:focus-visible, input:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    @keyframes slotShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+    .slot-error {
+      animation: slotShake 0.45s ease-in-out 2;
+      box-shadow: 0 0 0 3px #f43f5e, 0 0 16px #f43f5e;
+      z-index: 10;
+    }
+
+    @keyframes tipIn {
+      from { transform: translateY(8px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .tip-in { animation: tipIn 0.35s ease-out; }
+
+    kbd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slot-executing, .slot-error, .floating-sticker, .tip-in { animation-duration: 0.01s !important; }
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.15); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 999px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP HEADER BAR -->
+  <header class="sticky top-0 z-30 glass-panel border-x-0 border-t-0 px-2.5 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2">
+    <!-- Brand + Local Explorer Profile + Quick Hero Switcher -->
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <button id="btnOpenProfile" class="group flex items-center gap-2 p-1 pr-2.5 rounded-full bg-black/35 hover:bg-black/55 border border-white/10 transition" title="Editar Perfil Local">
+        <div id="headerAvatar" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-emerald-400 to-sky-500 text-slate-950 font-bold text-lg ring-2 ring-white/20 group-hover:ring-emerald-400 transition">
+          🦊
+        </div>
+        <div class="text-left leading-tight">
+          <div id="headerPlayerName" class="text-xs sm:text-sm font-bold truncate max-w-[85px] sm:max-w-[130px]">Explorador</div>
+          <div class="text-[10px] opacity-75 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="headerStarsTotal">0/360 ⭐</span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Instant Hero Character Switcher -->
+      <button id="btnQuickHero" class="btn-3d flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-400/35 text-xs font-bold" title="Alternar Guardião Jogável (Kitsu, Bubo, Vael, Draco)">
+        <span id="headerHeroIcon" class="text-base leading-none">🦊</span>
+        <span id="headerHeroName" class="hidden md:inline text-emerald-200">Kitsu</span>
+        <span class="text-[10px] opacity-75">⇄</span>
+      </button>
+
+      <div class="hidden xl:flex flex-col pl-2 border-l border-white/10">
+        <span class="font-display font-bold text-sm tracking-wide bg-gradient-to-r from-emerald-300 via-sky-300 to-amber-300 bg-clip-text text-transparent">
+          RUNAQUEST
+        </span>
+        <span class="text-[10px] uppercase tracking-widest opacity-60">Ilhas Ancestrais • 120 Fases</span>
+      </div>
+    </div>
+
+    <!-- Center: Level Selector -->
+    <div class="flex items-center gap-1.5">
+      <button id="btnLevelModal" class="btn-3d px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 flex items-center gap-1.5 text-xs sm:text-sm font-bold">
+        <span id="badgeDiff" class="px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Fácil</span>
+        <span id="headerLevelTitle">Fase 1/120</span>
+        <span class="opacity-60 text-xs">▼</span>
+      </button>
+    </div>
+
+    <!-- Right: Coins, Shop, Badges, Theme, Audio -->
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <!-- Coins & Shop Trigger -->
+      <button id="btnOpenShop" class="btn-3d flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/35 text-amber-300 font-bold text-xs sm:text-sm shadow-inner" title="Guardiões & Auras Elementais">
+        <span>🪙</span>
+        <span id="coinCount">120</span>
+        <span class="hidden sm:inline text-[10px] uppercase bg-amber-400/20 px-1.5 py-0.5 rounded-full">Heróis & Loja</span>
+      </button>
+
+      <!-- Achievements Button -->
+      <button id="btnOpenBadges" class="btn-3d relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center text-sm sm:text-base" title="Conquistas do Explorador" aria-label="Conquistas">
+        🏅
+        <span id="badgeCountPill" class="absolute -top-1 -right-1 px-1 rounded-full bg-emerald-400 text-slate-950 font-extrabold text-[9px]">0</span>
+      </button>
+
+      <!-- Theme Selector (4 Distinct Floating Island Biomes) -->
+      <div class="relative">
+        <select id="themeSelect" aria-label="Escolher Bioma da Ilha" class="appearance-none bg-black/35 hover:bg-black/50 border border-white/15 rounded-xl pl-2 pr-6 py-1.5 text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400">
+          <option value="forest">🌿 Floresta Rúnica</option>
+          <option value="desert">🏜️ Templo do Deserto</option>
+          <option value="astral">🔮 Cidadela Astral</option>
+          <option value="glacial">❄️ Santuário Glacial</option>
+        </select>
+        <span class="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] opacity-70">🎨</span>
+      </div>
+
+      <!-- Help / How to Play -->
+      <button id="btnHelp" class="btn-3d w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 flex items-center justify-center text-sm sm:text-base font-extrabold text-sky-200" title="Como Jogar" aria-label="Como Jogar">
+        ?
+      </button>
+
+      <!-- Sound Toggle -->
+      <button id="btnToggleAudio" class="btn-3d w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center text-sm sm:text-base" title="Ativar/Desativar Som" aria-label="Ativar ou desativar som">
+        🔊
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+
+    <!-- LEFT / TOP: FLOATING ORGANIC ISLAND 2.5D VIEWPORT -->
+    <section class="lg:col-span-7 flex flex-col gap-2.5">
+      <div class="glass-panel rounded-2xl p-2.5 sm:p-3 flex flex-col flex-1 relative overflow-hidden min-h-[340px] sm:min-h-[450px]">
+        <!-- Top Mission Info Overlay -->
+        <div class="flex flex-wrap items-start justify-between gap-2 z-10 pointer-events-none">
+          <div class="bg-black/55 backdrop-blur-md border border-white/10 rounded-xl px-3 py-2 max-w-md pointer-events-auto">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="levelNumberBadge" class="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">FASE 001</span>
+              <span id="chapterTag" class="text-[10px] font-semibold px-2 py-0.5 rounded bg-white/10 opacity-85">Cap. 1</span>
+              <h1 id="levelName" class="font-display font-bold text-sm sm:text-base">O Despertar da Ilha</h1>
+            </div>
+            <p id="levelDesc" class="text-xs opacity-80 mt-0.5 leading-snug">
+              Guie seu guardião pelas lajes rúnicas até o altar circular e acenda o cristal.
+            </p>
+          </div>
+
+          <!-- Progress Counters + Camera Rotate -->
+          <div class="flex items-center gap-1.5 pointer-events-auto">
+            <div class="bg-black/55 backdrop-blur-md border border-white/10 rounded-xl px-2.5 py-1.5 flex items-center gap-2 text-xs font-bold">
+              <span title="Altares Rúnicos Acesos">💠 <span id="runeProgress" class="text-emerald-300 font-code">0/1</span></span>
+              <span id="mapCoinCounter" class="hidden text-amber-300 font-code border-l border-white/15 pl-2" title="Moedas Bônus na Ilha">🪙 0/0</span>
+            </div>
+            <button id="btnRotateView" class="btn-3d bg-black/55 hover:bg-black/75 border border-white/15 rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-1" title="Girar Câmera 90° (ou arraste na ilha)" aria-label="Girar câmera">
+              🔄 <span class="hidden sm:inline">90°</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Legend Pill Bar for Special Tiles (Portals, Switches, Bridges) -->
+        <div id="mechanicLegend" class="hidden z-10 mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold"></div>
+
+        <!-- Interactive Floating Island 2.5D Canvas -->
+        <div id="canvasContainer" class="relative flex-1 w-full h-full min-h-[245px] flex items-center justify-center my-1">
+          <canvas id="gameCanvas" class="absolute inset-0 w-full h-full rounded-xl cursor-grab active:cursor-grabbing" aria-label="Ilha flutuante do jogo"></canvas>
+
+          <!-- Floating Status Toast inside Viewport -->
+          <div id="statusBanner" class="hidden absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-slate-900/95 border border-white/20 text-xs sm:text-sm font-bold shadow-xl max-w-[92%] text-center z-20 transition-all">
+          </div>
+        </div>
+
+        <!-- Bottom Bar: Interactive Gestures / Stickers + Code Preview + Smart Hint -->
+        <div class="z-10 pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+          <!-- Stickers / Gestures -->
+          <div class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-0.5">
+            <button data-sticker="✨ Dança Ancestral!" data-gesture="dance" class="sticker-btn btn-3d px-2 py-1 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs flex items-center gap-1" title="Dançar">
+              🕺 <span class="hidden md:inline font-semibold">Dança</span>
+            </button>
+            <button data-sticker="💡 EUREKA!" data-gesture="eureka" class="sticker-btn btn-3d px-2 py-1 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs flex items-center gap-1" title="Eureka">
+              💡 <span class="hidden md:inline font-semibold">Eureka</span>
+            </button>
+            <button data-sticker="🔥 Lógica Perfeita!" data-gesture="fire" class="sticker-btn btn-3d px-2 py-1 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs flex items-center gap-1" title="Top!">
+              🔥 <span class="hidden md:inline font-semibold">Top!</span>
+            </button>
+            <button data-sticker="🤯 Bugou a Mente!" data-gesture="spin" class="sticker-btn btn-3d px-2 py-1 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs flex items-center gap-1" title="Bugou">
+              🤯 <span class="hidden md:inline font-semibold">Bugou</span>
+            </button>
+            <button data-sticker="🚀 Salto Místico!" data-gesture="jump" class="sticker-btn btn-3d px-2 py-1 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs flex items-center gap-1" title="Turbo">
+              🚀 <span class="hidden md:inline font-semibold">Turbo</span>
+            </button>
+          </div>
+
+          <!-- Code Drawer & Smart Hint -->
+          <div class="flex items-center gap-1.5 ml-auto">
+            <button id="btnToggleCode" class="btn-3d px-2.5 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/30 text-sky-300 text-xs font-bold flex items-center gap-1">
+              <span>{ }</span> <span class="hidden sm:inline">Código</span>
+            </button>
+            <button id="btnHint" class="btn-3d px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-xs font-bold flex items-center gap-1.5">
+              <span>💡 Dica</span>
+              <span id="hintCostLabel" class="px-1.5 py-0.5 rounded bg-black/45 text-[10px]">Grátis</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Optional Live Code Equivalent Drawer (JS / Python Toggle) -->
+        <div id="codeDrawer" class="hidden mt-2 p-2.5 rounded-xl bg-black/70 border border-sky-400/30 font-code text-xs text-sky-200 max-h-36 overflow-y-auto">
+          <div class="flex items-center justify-between text-[10px] uppercase tracking-wider opacity-80 mb-1.5">
+            <span>Tradução em Tempo Real (Zero Digitação)</span>
+            <div class="flex items-center gap-1">
+              <button id="btnLangJS" class="px-2 py-0.5 rounded bg-sky-500/30 text-sky-200 font-bold">JS</button>
+              <button id="btnLangPY" class="px-2 py-0.5 rounded bg-white/10 text-slate-300 font-bold">Python</button>
+            </div>
+          </div>
+          <pre id="codePreviewText" class="whitespace-pre-wrap leading-relaxed"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT / BOTTOM: VISUAL PROGRAMMING DECK -->
+    <section class="lg:col-span-5 flex flex-col gap-2.5">
+      <div class="glass-panel rounded-2xl p-3 sm:p-4 flex flex-col justify-between flex-1 gap-3">
+
+        <!-- 1. Execution Controls -->
+        <div class="flex items-center justify-between gap-1.5 pb-2.5 border-b border-white/10">
+          <div class="flex items-center gap-1.5">
+            <button id="btnRun" title="Executar programa (Enter)" class="btn-3d px-3.5 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 font-extrabold text-xs sm:text-sm flex items-center gap-1.5 shadow-lg shadow-emerald-500/25">
+              <span>▶</span> EXECUTAR
+            </button>
+            <button id="btnStep" class="btn-3d px-2.5 sm:px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 font-bold text-xs sm:text-sm flex items-center gap-1" title="Depurar: executar 1 instrução por vez">
+              <span>⏭</span> Passo
+            </button>
+            <button id="btnStop" class="btn-3d px-2.5 sm:px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 font-bold text-xs sm:text-sm flex items-center gap-1" title="Reiniciar posição do guardião">
+              <span>↺</span> Reset
+            </button>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button id="btnSpeed" class="btn-3d px-2.5 py-2 rounded-xl bg-white/10 border border-white/10 font-code text-xs font-bold" title="Alternar Velocidade (1x / 2x)">
+              1x
+            </button>
+            <button id="btnClearAll" class="btn-3d px-2.5 py-2 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-white/10 text-xs font-semibold opacity-80 hover:opacity-100" title="Limpar todos os slots" aria-label="Limpar todos os blocos">
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        <!-- Contextual Tutorial Tip (new mechanics) -->
+        <div id="tipPanel" class="hidden rounded-xl p-2.5 bg-sky-500/15 border border-sky-400/40 text-xs leading-snug flex items-start gap-2">
+          <span id="tipIcon" class="text-xl leading-none">💡</span>
+          <div class="flex-1">
+            <div id="tipTitle" class="font-extrabold text-sky-200 mb-0.5"></div>
+            <div id="tipText" class="opacity-90"></div>
+          </div>
+          <button id="btnCloseTip" type="button" class="shrink-0 w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 font-bold" aria-label="Fechar dica">✕</button>
+        </div>
+
+        <!-- 2. Instruction Palette (Pre-established Buttons) -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider opacity-75">1. Toque nos comandos:</span>
+            <span id="activeRoutineLabel" class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Vão para: MAIN</span>
+          </div>
+
+          <div id="commandPalette" class="grid grid-cols-4 gap-1.5 sm:gap-2">
+            <button data-cmd="FWD" title="Avançar 1 laje (tecla ↑)" class="cmd-btn btn-3d flex flex-col items-center justify-center p-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-sky-200">
+              <span class="text-xl sm:text-2xl leading-none">⬆️</span>
+              <span class="text-[10px] sm:text-xs font-bold mt-1">Avançar</span>
+            </button>
+
+            <button data-cmd="LEFT" title="Girar à esquerda (tecla ←)" class="cmd-btn btn-3d flex flex-col items-center justify-center p-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-200">
+              <span class="text-xl sm:text-2xl leading-none">↰</span>
+              <span class="text-[10px] sm:text-xs font-bold mt-1">Girar Esq</span>
+            </button>
+
+            <button data-cmd="RIGHT" title="Girar à direita (tecla →)" class="cmd-btn btn-3d flex flex-col items-center justify-center p-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-200">
+              <span class="text-xl sm:text-2xl leading-none">↱</span>
+              <span class="text-[10px] sm:text-xs font-bold mt-1">Girar Dir</span>
+            </button>
+
+            <button data-cmd="JUMP" title="Saltar 1 degrau acima/abaixo (Espaço)" class="cmd-btn btn-3d flex flex-col items-center justify-center p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200">
+              <span class="text-xl sm:text-2xl leading-none">🦘</span>
+              <span class="text-[10px] sm:text-xs font-bold mt-1">Saltar</span>
+            </button>
+
+            <button data-cmd="LIGHT" title="Ativar a runa da laje atual (tecla A)" class="cmd-btn btn-3d flex flex-col items-center justify-center p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200">
+              <span class="text-xl sm:text-2xl leading-none">💠</span>
+              <span class="text-[10px] sm:text-xs font-bold mt-1">Ativar Runa</span>
+            </button>
+
+            <button id="btnCmdP1" data-cmd="P1" title="Executar a sub-rotina P1 (tecla 1)" class="cmd-btn btn-3d flex flex-col items-center justify-center p-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/40 text-purple-200">
+              <span class="text-xl sm:text-2xl leading-none">⚡</span>
+              <span class="text-[10px] sm:text-xs font-bold mt-1">Chamar P1</span>
+            </button>
+
+            <button id="btnCmdP2" data-cmd="P2" title="Executar a sub-rotina P2 (tecla 2)" class="cmd-btn btn-3d flex flex-col items-center justify-center p-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/40 text-pink-200">
+              <span class="text-xl sm:text-2xl leading-none">🔮</span>
+              <span class="text-[10px] sm:text-xs font-bold mt-1">Chamar P2</span>
+            </button>
+
+            <button id="btnBackspace" class="btn-3d flex flex-col items-center justify-center p-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/15 text-slate-300" title="Apagar último bloco (Backspace)">
+              <span class="text-xl sm:text-2xl leading-none">⌫</span>
+              <span class="text-[10px] sm:text-xs font-bold mt-1">Apagar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Routine Containers (MAIN, PROC 1, PROC 2) -->
+        <div class="flex-1 flex flex-col gap-2 overflow-y-auto pr-0.5">
+          <!-- MAIN ROUTINE -->
+          <div id="box-MAIN" data-routine="MAIN" class="routine-box rounded-xl p-2.5 bg-black/35 border-2 border-emerald-400/70 transition cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-emerald-400 text-slate-950 font-code font-extrabold text-xs">MAIN</span>
+                <span class="text-xs font-semibold opacity-80">Programa Principal</span>
+              </div>
+              <span id="count-MAIN" class="font-code text-xs opacity-75">0 / 12</span>
+            </div>
+            <div id="slots-MAIN" class="grid grid-cols-6 gap-1.5"></div>
+          </div>
+
+          <!-- PROC 1 -->
+          <div id="box-P1" data-routine="P1" class="routine-box rounded-xl p-2.5 bg-black/35 border-2 border-white/10 transition cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-purple-400 text-slate-950 font-code font-extrabold text-xs">PROC 1 (P1)</span>
+                <span class="text-xs font-semibold opacity-80">Sub-rotina Reutilizável</span>
+              </div>
+              <span id="count-P1" class="font-code text-xs opacity-75">0 / 8</span>
+            </div>
+            <div id="slots-P1" class="grid grid-cols-6 gap-1.5"></div>
+          </div>
+
+          <!-- PROC 2 -->
+          <div id="box-P2" data-routine="P2" class="routine-box rounded-xl p-2.5 bg-black/35 border-2 border-white/10 transition cursor-pointer">
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-pink-400 text-slate-950 font-code font-extrabold text-xs">PROC 2 (P2)</span>
+                <span class="text-xs font-semibold opacity-80">Sub-rotina Avançada</span>
+              </div>
+              <span id="count-P2" class="font-code text-xs opacity-75">0 / 8</span>
+            </div>
+            <div id="slots-P2" class="grid grid-cols-6 gap-1.5"></div>
+          </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-[11px] opacity-70 flex items-center justify-between pt-1 border-t border-white/10">
+          <span>Toque num bloco para removê-lo • Toque numa caixa para escolhê-la</span>
+          <span id="optimalTargetLabel" class="font-bold text-amber-300">Meta 3⭐: ≤ 4 blocos</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================
+       MODAL 1: LOCAL LOGIN, AVATAR & 4 ORIGINAL HEROES ONBOARDING
+       ========================================================= -->
+  <div id="profileModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4">
+    <div class="glass-panel rounded-3xl max-w-lg w-full p-4 sm:p-6 border border-emerald-400/40 shadow-2xl relative max-h-[94vh] overflow-y-auto">
+      <button id="btnCloseProfile" type="button" class="hidden absolute top-3 right-3 btn-3d w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold" aria-label="Fechar">✕</button>
+      <div class="text-center mb-3">
+        <span class="inline-block px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-1">
+          Passaporte de Explorador (Local)
+        </span>
+        <h2 class="font-display font-bold text-xl sm:text-2xl">RUNAQUEST: Código Ancestral</h2>
+        <p class="text-xs opacity-75 mt-0.5">Crie seu perfil local e escolha qual dos 4 guardiões guiará sua expedição.</p>
+      </div>
+
+      <!-- Step 1: Select one of the 4 Original Playable Heroes -->
+      <div class="mb-4">
+        <label class="block text-[11px] font-bold uppercase tracking-wider opacity-80 mb-1.5 text-center">1. Escolha seu Guardião Jogável (Troque quando quiser):</label>
+        <div id="onboardingHeroesGrid" class="grid grid-cols-4 gap-2"></div>
+      </div>
+
+      <!-- Step 2: Explorer Avatar Preview (Camera / Gallery / Icon) -->
+      <div class="flex flex-col items-center mb-3">
+        <label class="block text-[11px] font-bold uppercase tracking-wider opacity-80 mb-1.5">2. Foto ou Emblema do Explorador:</label>
+        <div id="avatarPreviewBox" class="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-emerald-400 to-sky-600 flex items-center justify-center text-4xl shadow-xl ring-4 ring-emerald-400/40 relative">
+          <span id="avatarPreviewEmoji">🦊</span>
+          <img id="avatarPreviewImg" class="hidden w-full h-full object-cover" alt="Avatar do jogador" />
+          <video id="cameraVideo" class="hidden w-full h-full object-cover scale-x-[-1]" autoplay playsinline muted></video>
+        </div>
+
+        <div id="cameraControls" class="hidden mt-2 flex items-center gap-2">
+          <button id="btnCapturePhoto" type="button" class="btn-3d px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs">
+            📸 Capturar
+          </button>
+          <button id="btnCancelCamera" type="button" class="btn-3d px-3 py-1 rounded-full bg-white/15 text-xs font-semibold">
+            Cancelar
+          </button>
+        </div>
+      </div>
+
+      <!-- Avatar Source Tabs -->
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <button id="btnSourceIcons" type="button" class="btn-3d py-1.5 px-2 rounded-xl bg-emerald-500/25 border border-emerald-400/50 text-xs font-bold flex items-center justify-center gap-1.5">
+          <span>🎭</span> Ícones
+        </button>
+        <button id="btnSourceCamera" type="button" class="btn-3d py-1.5 px-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-bold flex items-center justify-center gap-1.5">
+          <span>📷</span> Câmera
+        </button>
+        <label class="btn-3d py-1.5 px-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+          <span>🖼️</span> Galeria
+          <input id="inputGalleryFile" type="file" accept="image/*" class="hidden" />
+        </label>
+      </div>
+
+      <!-- Preset Icons Grid -->
+      <div id="presetIconsGrid" class="grid grid-cols-4 gap-1.5 mb-3 p-2 rounded-2xl bg-black/30 border border-white/10">
+        <button type="button" data-icon="🦊" class="icon-choice p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 text-xl transition">🦊</button>
+        <button type="button" data-icon="🦉" class="icon-choice p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 text-xl transition">🦉</button>
+        <button type="button" data-icon="🧙‍♂️" class="icon-choice p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 text-xl transition">🧙‍♂️</button>
+        <button type="button" data-icon="🐉" class="icon-choice p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 text-xl transition">🐉</button>
+        <button type="button" data-icon="🧑‍🚀" class="icon-choice p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 text-xl transition">🧑‍🚀</button>
+        <button type="button" data-icon="🧭" class="icon-choice p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 text-xl transition">🧭</button>
+        <button type="button" data-icon="💎" class="icon-choice p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 text-xl transition">💎</button>
+        <button type="button" data-icon="⚡" class="icon-choice p-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 text-xl transition">⚡</button>
+      </div>
+
+      <p id="cameraErrorMsg" class="hidden text-xs text-amber-300 bg-amber-500/15 border border-amber-400/30 rounded-xl p-2 mb-3 text-center"></p>
+
+      <!-- Name Input -->
+      <div class="mb-4">
+        <label for="inputPlayerName" class="block text-[11px] font-bold uppercase tracking-wider opacity-75 mb-1">3. Nome do Explorador:</label>
+        <input id="inputPlayerName" type="text" maxlength="18" placeholder="Ex: MestreDasRunas" class="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/20 focus:border-emerald-400 focus:outline-none text-sm font-bold" />
+      </div>
+
+      <button id="btnSaveProfile" type="button" class="btn-3d w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-sky-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-emerald-500/25">
+        🚀 Começar Expedição
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 2: 120-LEVEL GRID SELECTOR (40 FÁCIL / 40 MÉDIO / 40 DIFÍCIL)
+       ========================================================= -->
+  <div id="levelsModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4">
+    <div class="glass-panel rounded-3xl max-w-3xl w-full p-4 sm:p-6 border border-white/20 shadow-2xl max-h-[92vh] flex flex-col">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
+        <div>
+          <h2 class="font-display font-bold text-xl sm:text-2xl">Mapa das 120 Ilhas</h2>
+          <p id="modalProgressSummary" class="text-xs opacity-75">Progresso Geral: 0/120 concluídas • 0/360 ⭐</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnNextPending" class="btn-3d px-3 py-1.5 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/35 border border-emerald-400/40 text-emerald-200 text-xs font-bold">
+            ▶ Próxima Pendente
+          </button>
+          <button id="btnCloseLevels" class="btn-3d w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold">✕</button>
+        </div>
+      </div>
+
+      <!-- Difficulty Tabs -->
+      <div class="grid grid-cols-3 gap-2 my-3">
+        <button data-diff-tab="Fácil" class="diff-tab btn-3d py-2 rounded-xl font-bold text-xs sm:text-sm border">
+          🌱 Fácil (1–40)
+        </button>
+        <button data-diff-tab="Médio" class="diff-tab btn-3d py-2 rounded-xl font-bold text-xs sm:text-sm border">
+          ⚡ Médio (41–80)
+        </button>
+        <button data-diff-tab="Difícil" class="diff-tab btn-3d py-2 rounded-xl font-bold text-xs sm:text-sm border">
+          🔥 Difícil (81–120)
+        </button>
+      </div>
+
+      <!-- Compact 1-40 Grid per Difficulty -->
+      <div id="levelsGrid" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-2 overflow-y-auto pr-1 flex-1 py-1"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 3: HEROES & MYSTIC AURAS SHOP
+       ========================================================= -->
+  <div id="shopModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-panel rounded-3xl max-w-2xl w-full p-4 sm:p-6 border border-amber-400/35 shadow-2xl max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div>
+          <h2 class="font-display font-bold text-xl sm:text-2xl">Santuário de Guardiões & Auras</h2>
+          <p class="text-xs opacity-75">Alterne entre os 4 guardiões gratuitos ou desbloqueie auras místicas com suas moedas.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold text-xs">
+            🪙 <span id="shopCoinBalance">0</span>
+          </span>
+          <button id="btnCloseShop" class="btn-3d w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold">✕</button>
+        </div>
+      </div>
+
+      <div class="overflow-y-auto py-3 pr-1 flex-1 space-y-4">
+        <div>
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-2">1. Guardiões Jogáveis (Todos Liberados)</h3>
+          <div id="heroesShopGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-amber-300 mb-2">2. Auras Elementais (Desbloqueáveis com Moedas)</h3>
+          <div id="aurasShopGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 4: ACHIEVEMENTS / BADGES PANEL
+       ========================================================= -->
+  <div id="badgesModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-panel rounded-3xl max-w-xl w-full p-5 sm:p-6 border border-emerald-400/35 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div>
+          <h2 class="font-display font-bold text-xl sm:text-2xl">Conquistas & Medalhas</h2>
+          <p class="text-xs opacity-75">Desbloqueie insígnias dominando funções, portais e recursão.</p>
+        </div>
+        <button id="btnCloseBadges" class="btn-3d w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <div id="badgesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto py-3 pr-1 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 6: HOW TO PLAY (COMO JOGAR)
+       ========================================================= -->
+  <div id="helpModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-panel rounded-3xl max-w-lg w-full p-5 sm:p-6 border border-sky-400/40 shadow-2xl max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div>
+          <h2 class="font-display font-bold text-xl sm:text-2xl">Como Jogar</h2>
+          <p class="text-xs opacity-75">Monte um programa com blocos e veja seu guardião executar.</p>
+        </div>
+        <button id="btnCloseHelp" class="btn-3d w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold" aria-label="Fechar">✕</button>
+      </div>
+
+      <div class="overflow-y-auto py-3 pr-1 flex-1 space-y-3 text-sm leading-snug">
+        <div class="flex gap-3 items-start">
+          <span class="w-7 h-7 shrink-0 rounded-full bg-emerald-400 text-slate-950 font-extrabold flex items-center justify-center">1</span>
+          <p><b>Objetivo:</b> acender <b>todas as runas</b> 💠 (os altares circulares azuis) da ilha. O contador 💠 no topo mostra quantas faltam.</p>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="w-7 h-7 shrink-0 rounded-full bg-emerald-400 text-slate-950 font-extrabold flex items-center justify-center">2</span>
+          <p><b>Monte o programa:</b> toque nos comandos para colocá-los em ordem na caixa <b>MAIN</b>. Nada acontece até você apertar <b>▶ EXECUTAR</b>.</p>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="w-7 h-7 shrink-0 rounded-full bg-emerald-400 text-slate-950 font-extrabold flex items-center justify-center">3</span>
+          <div>
+            <p class="mb-1.5"><b>Os comandos:</b></p>
+            <ul class="space-y-1 text-xs">
+              <li>⬆️ <b>Avançar</b> — anda 1 laje para onde o guardião olha (a <b>seta amarela</b> no chão).</li>
+              <li>↰ ↱ <b>Girar</b> — vira 90° para a esquerda/direita <i>do guardião</i>, sem sair do lugar.</li>
+              <li>🦘 <b>Saltar</b> — sobe ou desce <b>exatamente 1 degrau</b>. Em piso plano, use Avançar.</li>
+              <li>💠 <b>Ativar Runa</b> — acende a runa onde o guardião está. Ativar de novo apaga!</li>
+              <li>⚡ 🔮 <b>P1 / P2</b> — executam tudo o que estiver dentro da caixa P1 / P2 (funções).</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="w-7 h-7 shrink-0 rounded-full bg-emerald-400 text-slate-950 font-extrabold flex items-center justify-center">4</span>
+          <p><b>Funções P1/P2:</b> toque na caixa <b>P1</b> para selecioná-la (fica com borda verde) e os novos blocos vão para lá. Depois coloque ⚡ P1 no MAIN para usá-la quantas vezes quiser.</p>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="w-7 h-7 shrink-0 rounded-full bg-emerald-400 text-slate-950 font-extrabold flex items-center justify-center">5</span>
+          <p><b>Errou?</b> O bloco com problema treme em vermelho. Toque nele para removê-lo, ou use <b>⏭ Passo</b> para ver o programa um comando por vez. <b>💡 Dica</b>: a 1ª é grátis; as seguintes colocam o próximo bloco certo por 25 🪙.</p>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="w-7 h-7 shrink-0 rounded-full bg-amber-400 text-slate-950 font-extrabold flex items-center justify-center">⭐</span>
+          <p><b>Estrelas:</b> use poucos blocos para ganhar 3⭐ (a meta aparece embaixo dos blocos). Qualquer solução conta para avançar!</p>
+        </div>
+        <div class="rounded-xl bg-black/35 border border-white/10 p-2.5 text-xs">
+          <b>Teclado:</b> <kbd>↑</kbd> avançar • <kbd>←</kbd> <kbd>→</kbd> girar • <kbd>Espaço</kbd> saltar • <kbd>A</kbd> ativar •
+          <kbd>1</kbd> <kbd>2</kbd> P1/P2 • <kbd>Backspace</kbd> apagar • <kbd>Enter</kbd> executar • <kbd>Esc</kbd> fechar
+        </div>
+      </div>
+
+      <button id="btnHelpStart" class="btn-3d w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-sky-400 text-slate-950 font-extrabold text-sm shadow-lg">
+        Entendi, vamos jogar!
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 5: VICTORY CELEBRATION (1 TO 3 STARS + COINS + STICKERS)
+       ========================================================= -->
+  <div id="victoryModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-panel rounded-3xl max-w-md w-full p-6 border-2 border-amber-400/60 text-center shadow-2xl relative overflow-hidden">
+      <div id="victoryStarsDisplay" class="text-4xl sm:text-5xl mb-2 tracking-widest">⭐⭐⭐</div>
+      <span class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
+        Altares Rúnicos Sincronizados!
+      </span>
+      <h2 id="victoryTitle" class="font-display font-bold text-2xl mt-2">Ilha Concluída!</h2>
+      <p id="victorySubtitle" class="text-xs opacity-80 mt-1">Excelente raciocínio lógico!</p>
+
+      <!-- Rewards Box -->
+      <div class="grid grid-cols-2 gap-3 my-4">
+        <div class="p-3 rounded-2xl bg-black/40 border border-amber-400/30">
+          <div class="text-xs opacity-70">Moedas Ganhas</div>
+          <div id="victoryCoins" class="text-xl font-extrabold text-amber-300 mt-0.5">+30 🪙</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-black/40 border border-emerald-400/30">
+          <div class="text-xs opacity-70">Eficiência</div>
+          <div id="victoryRating" class="text-xs sm:text-sm font-extrabold text-emerald-300 mt-1">⭐⭐⭐ Código Ótimo!</div>
+        </div>
+      </div>
+
+      <!-- Quick Celebration Sticker Buttons -->
+      <div class="mb-4">
+        <div class="text-[11px] uppercase tracking-wider opacity-65 mb-1.5">Comemore com um Sticker:</div>
+        <div class="flex justify-center gap-2">
+          <button data-sticker="🎉 GG! Muito Fácil!" class="sticker-btn btn-3d px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-sm">🎉 GG!</button>
+          <button data-sticker="🧠 Cérebro Galáctico!" class="sticker-btn btn-3d px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-sm">🧠 Gênio</button>
+          <button data-sticker="✨ Guardião Imparável!" class="sticker-btn btn-3d px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-sm">✨ Top</button>
+        </div>
+      </div>
+
+      <div class="flex gap-2.5">
+        <button id="btnReplayLevel" class="btn-3d flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-xs sm:text-sm">
+          ↺ Repetir
+        </button>
+        <button id="btnNextLevel" class="btn-3d flex-[2] px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-lg">
+          Próxima Ilha ➔
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * RUNAQUEST: Código Ancestral — Floating Organic Islands, 4 Heroes & 120 Levels
+     * Single-File PWA Ready for GitHub Pages
+     * ============================================================================
+     */
+
+    // 1. PWA: SERVICE WORKER (manifest e ícones são arquivos estáticos em /icons e manifest.webmanifest)
+    (function setupPWA() {
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js').catch(() => {});
+        });
+      }
+    })();
+
+    // 2. PROCEDURAL WEB AUDIO SYNTHESIZER
+    const SoundFX = (() => {
+      let ctx = null;
+      let muted = false;
+
+      function ensureCtx() {
+        if (!ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) ctx = new AudioCtx();
+        }
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+      }
+
+      function playTone(freq, type = 'sine', duration = 0.14, gainVal = 0.13, delay = 0) {
+        if (muted) return;
+        try {
+          ensureCtx();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+          gain.gain.setValueAtTime(0.001, ctx.currentTime + delay);
+          gain.gain.exponentialRampToValueAtTime(gainVal, ctx.currentTime + delay + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + delay);
+          osc.stop(ctx.currentTime + delay + duration + 0.02);
+        } catch (e) {}
+      }
+
+      return {
+        isMuted: () => muted,
+        setMuted: (v) => { muted = !!v; },
+        toggleMute: () => { muted = !muted; return muted; },
+        click: () => playTone(520, 'triangle', 0.08, 0.11),
+        remove: () => playTone(320, 'sine', 0.09, 0.1),
+        step: () => playTone(260, 'triangle', 0.11, 0.12),
+        turn: () => playTone(390, 'sine', 0.09, 0.1),
+        jump: () => { playTone(330, 'sine', 0.12, 0.13, 0); playTone(560, 'sine', 0.16, 0.13, 0.07); },
+        runeOn: () => { playTone(587.33, 'triangle', 0.18, 0.15, 0); playTone(880, 'sine', 0.25, 0.15, 0.08); },
+        runeOff: () => playTone(220, 'sawtooth', 0.16, 0.09),
+        portal: () => { playTone(440, 'sine', 0.14, 0.14, 0); playTone(740, 'triangle', 0.18, 0.14, 0.05); playTone(1100, 'sine', 0.2, 0.12, 0.1); },
+        bridgeToggle: () => { playTone(493.88, 'triangle', 0.14, 0.13, 0); playTone(659.25, 'triangle', 0.16, 0.13, 0.06); },
+        coinPickup: () => { playTone(987.77, 'sine', 0.1, 0.14, 0); playTone(1318.5, 'sine', 0.18, 0.14, 0.06); },
+        error: () => { playTone(160, 'sawtooth', 0.18, 0.14, 0); playTone(130, 'sawtooth', 0.22, 0.14, 0.12); },
+        sticker: () => { playTone(660, 'sine', 0.1, 0.11, 0); playTone(990, 'triangle', 0.15, 0.11, 0.06); },
+        victory: () => {
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+            playTone(f, 'triangle', 0.28, 0.15, idx * 0.1);
+          });
+        }
+      };
+    })();
+
+    // 3. FLOATING ISLAND BIOME THEMES (COMPLETELY DISTINCT FROM LIGHT-BOT)
+    const THEMES = {
+      forest: {
+        name: 'Floresta Rúnica',
+        skyTop: '#061520',
+        skyMid: '#0d2b38',
+        skyBottom: '#164549',
+        horizonColor: '#092029',
+        horizonFar: '#0c2934',
+        slabTop: '#2b594b',
+        slabTrim: '#4ade80',
+        slabLeft: '#3a322c',
+        slabRight: '#241f1c',
+        slabStroke: 'rgba(134, 239, 172, 0.35)',
+        underbellyDark: '#1c1917',
+        underbellyMid: '#292524',
+        veinColor: '#34d399',
+        altarBase: '#134e4a',
+        altarRingOff: '#38bdf8',
+        altarRingOn: '#fbbf24',
+        altarBeam: 'rgba(52, 211, 153, 0.38)',
+        particle: '#fde047',
+        propType: 'forest'
+      },
+      desert: {
+        name: 'Templo do Deserto',
+        skyTop: '#1f100a',
+        skyMid: '#4c2214',
+        skyBottom: '#8c421e',
+        horizonColor: '#3d1b0e',
+        horizonFar: '#592914',
+        slabTop: '#d99b52',
+        slabTrim: '#fde68a',
+        slabLeft: '#9a5b25',
+        slabRight: '#6e3d16',
+        slabStroke: 'rgba(254, 240, 138, 0.38)',
+        underbellyDark: '#451a03',
+        underbellyMid: '#78350f',
+        veinColor: '#f59e0b',
+        altarBase: '#78350f',
+        altarRingOff: '#38bdf8',
+        altarRingOn: '#fde047',
+        altarBeam: 'rgba(251, 191, 36, 0.42)',
+        particle: '#fef08a',
+        propType: 'desert'
+      },
+      astral: {
+        name: 'Cidadela Astral',
+        skyTop: '#070312',
+        skyMid: '#180a36',
+        skyBottom: '#2d1259',
+        horizonColor: '#120729',
+        horizonFar: '#1e0c42',
+        slabTop: '#311b5e',
+        slabTrim: '#e879f9',
+        slabLeft: '#1e103b',
+        slabRight: '#120826',
+        slabStroke: 'rgba(232, 121, 249, 0.42)',
+        underbellyDark: '#090414',
+        underbellyMid: '#170b30',
+        veinColor: '#e879f9',
+        altarBase: '#3b0764',
+        altarRingOff: '#22d3ee',
+        altarRingOn: '#f0abfc',
+        altarBeam: 'rgba(232, 121, 249, 0.42)',
+        particle: '#e879f9',
+        propType: 'astral'
+      },
+      glacial: {
+        name: 'Santuário Glacial',
+        skyTop: '#061524',
+        skyMid: '#0e2d47',
+        skyBottom: '#1a4c6e',
+        horizonColor: '#092238',
+        horizonFar: '#103554',
+        slabTop: '#bae6fd',
+        slabTrim: '#ffffff',
+        slabLeft: '#60a5fa',
+        slabRight: '#2563eb',
+        slabStroke: 'rgba(255, 255, 255, 0.65)',
+        underbellyDark: '#1e3a8a',
+        underbellyMid: '#1d4ed8',
+        veinColor: '#67e8f9',
+        altarBase: '#0369a1',
+        altarRingOff: '#38bdf8',
+        altarRingOn: '#34d399',
+        altarBeam: 'rgba(103, 232, 249, 0.45)',
+        particle: '#ffffff',
+        propType: 'glacial'
+      }
+    };
+
+    // 4 Completely Original Playable Characters (All Free & Selectable Anytime)
+    const HEROES = [
+      {
+        id: 'kitsu',
+        name: 'Kitsu',
+        title: 'Raposa Rúnica',
+        icon: '🦊',
+        desc: 'Guardiã espiritual ágil com cauda luminosa que vibra perto de altares.',
+        primary: '#f97316',
+        secondary: '#fef3c7',
+        glow: '#34d399'
+      },
+      {
+        id: 'bubo',
+        name: 'Bubo',
+        title: 'Coruja Mecânica',
+        icon: '🦉',
+        desc: 'Autômato arcano de bronze e safira com lentes ópticas e asas articuladas.',
+        primary: '#d97706',
+        secondary: '#fef08a',
+        glow: '#38bdf8'
+      },
+      {
+        id: 'vael',
+        name: 'Vael',
+        title: 'Mago Astral',
+        icon: '🧙‍♂️',
+        desc: 'Explorador encapuzado flutuante equipado com cajado estelar ancestral.',
+        primary: '#7c3aed',
+        secondary: '#ddd6fe',
+        glow: '#e879f9'
+      },
+      {
+        id: 'draco',
+        name: 'Draco',
+        title: 'Dragão Cristal',
+        icon: '🐉',
+        desc: 'Pequeno dragão elemental com asas translúcidas e chifres dourados.',
+        primary: '#10b981',
+        secondary: '#a7f3d0',
+        glow: '#fbbf24'
+      }
+    ];
+
+    const MYSTIC_AURAS = [
+      { id: 'none', name: 'Aura Natural', icon: '✨', price: 0, desc: 'Brilho elemental nativo do seu guardião.', ringColor: null },
+      { id: 'solar_ring', name: 'Anel Solar Dourado', icon: '☀️', price: 150, desc: 'Órbita dourada giratória sob os pés do guardião.', ringColor: '#fbbf24' },
+      { id: 'void_ring', name: 'Vórtice Cósmico', icon: '🌌', price: 280, desc: 'Energia estelar púrpura que pulsa a cada passo.', ringColor: '#e879f9' },
+      { id: 'emerald_ring', name: 'Escudo Esmeralda', icon: '💠', price: 420, desc: 'Runas flutuantes de jade ao redor do personagem.', ringColor: '#34d399' }
+    ];
+
+    const BADGES = [
+      { id: 'first_rune', icon: '💠', name: 'Primeiro Despertar', desc: 'Complete sua primeira ilha.', check: (s) => Object.keys(s.completedLevels).length >= 1 },
+      { id: 'ten_levels', icon: '🧭', name: 'Cartógrafo Celeste', desc: 'Complete 10 ilhas na expedição.', check: (s) => Object.keys(s.completedLevels).length >= 10 },
+      { id: 'easy_master', icon: '🌱', name: 'Mestre Iniciante', desc: 'Complete todas as 40 ilhas do nível Fácil.', check: (s) => countCompletedInRange(s, 1, 40) >= 40 },
+      { id: 'med_master', icon: '⚡', name: 'Arquiteto Modular', desc: 'Complete todas as 40 ilhas do nível Médio.', check: (s) => countCompletedInRange(s, 41, 80) >= 40 },
+      { id: 'hard_master', icon: '🔥', name: 'Senhor da Recursão', desc: 'Complete todas as 40 ilhas do nível Difícil.', check: (s) => countCompletedInRange(s, 81, 120) >= 40 },
+      { id: 'perfectionist', icon: '⭐', name: 'Código Impecável', desc: 'Conquiste 3 estrelas em 25 ilhas diferentes.', check: (s) => Object.values(s.completedLevels).filter(v => v.stars === 3).length >= 25 },
+      { id: 'rich_explorer', icon: '🪙', name: 'Caçador de Relíquias', desc: 'Acumule 500 moedas ou desbloqueie uma aura.', check: (s) => s.coins >= 500 || s.unlockedAuras.length > 1 },
+      { id: 'grand_master', icon: '👑', name: 'Lenda de RunaQuest', desc: 'Complete todas as 120 ilhas do jogo!', check: (s) => Object.keys(s.completedLevels).length >= 120 }
+    ];
+
+    function countCompletedInRange(s, startId, endId) {
+      let c = 0;
+      for (let i = startId; i <= endId; i++) {
+        if (s.completedLevels[i]) c++;
+      }
+      return c;
+    }
+
+    // 4. COMMAND METADATA
+    const COMMANDS = {
+      FWD:   { icon: '⬆️', label: 'Avançar',     js: 'moverFrente();',   py: 'mover_frente()',   color: 'bg-sky-500/30 border-sky-400 text-sky-100' },
+      LEFT:  { icon: '↰',  label: 'Esq',         js: 'girarEsquerda();', py: 'girar_esquerda()', color: 'bg-indigo-500/30 border-indigo-400 text-indigo-100' },
+      RIGHT: { icon: '↱',  label: 'Dir',         js: 'girarDireita();',  py: 'girar_direita()',  color: 'bg-indigo-500/30 border-indigo-400 text-indigo-100' },
+      JUMP:  { icon: '🦘', label: 'Saltar',      js: 'saltarNivel();',   py: 'saltar_nivel()',   color: 'bg-amber-500/30 border-amber-400 text-amber-100' },
+      LIGHT: { icon: '💠', label: 'Ativar Runa', js: 'ativarRuna();',    py: 'ativar_runa()',    color: 'bg-emerald-500/35 border-emerald-300 text-emerald-100' },
+      P1:    { icon: '⚡', label: 'P1',          js: 'executarP1();',    py: 'executar_p1()',    color: 'bg-purple-500/35 border-purple-400 text-purple-100' },
+      P2:    { icon: '🔮', label: 'P2',          js: 'executarP2();',    py: 'executar_p2()',    color: 'bg-pink-500/35 border-pink-400 text-pink-100' }
+    };
+
+    const DIR_VECTORS = [
+      { dx: 1, dy: 0 },  // 0: East
+      { dx: 0, dy: 1 },  // 1: South
+      { dx: -1, dy: 0 }, // 2: West
+      { dx: 0, dy: -1 }  // 3: North
+    ];
+
+    // 5. DETERMINISTIC 120-LEVEL CAMPAIGN GENERATOR + BFS/SIMULATION VERIFIER
+    function simulateHeadless(lvl, programs) {
+      const rows = lvl.grid.length;
+      const cols = lvl.grid[0].length;
+      let bx = lvl.start.x;
+      let by = lvl.start.y;
+      let bz = lvl.grid[by][bx].h;
+      let bdir = lvl.start.dir;
+      let bridgeOpen = false;
+      const litRunes = new Set();
+      let totalRunes = 0;
+
+      const portalPairs = {};
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const c = lvl.grid[y][x];
+          if (!c) continue;
+          if (c.rune) totalRunes++;
+          if (c.bridgeDefaultOpen) bridgeOpen = true;
+          if (c.portal) {
+            if (!portalPairs[c.portal]) portalPairs[c.portal] = [];
+            portalPairs[c.portal].push({ x, y });
+          }
+        }
+      }
+
+      const steps = [];
+      function expand(rName, depth = 0) {
+        if (depth > 28 || steps.length >= 180) return;
+        const arr = programs[rName] || [];
+        for (let i = 0; i < arr.length; i++) {
+          if (steps.length >= 180) break;
+          const cmd = arr[i];
+          steps.push(cmd);
+          if (cmd === 'P1') expand('P1', depth + 1);
+          if (cmd === 'P2') expand('P2', depth + 1);
+        }
+      }
+      expand('MAIN', 0);
+
+      function isWalkable(cell) {
+        if (!cell) return false;
+        if (cell.bridge && !bridgeOpen) return false;
+        return true;
+      }
+
+      function handleTileLanding(x, y, cell) {
+        if (cell.switchBridge) {
+          bridgeOpen = !bridgeOpen;
+        }
+        if (cell.portal && portalPairs[cell.portal]?.length === 2) {
+          const [p1, p2] = portalPairs[cell.portal];
+          const dest = (p1.x === x && p1.y === y) ? p2 : p1;
+          bx = dest.x;
+          by = dest.y;
+          bz = lvl.grid[by][bx].h;
+        }
+      }
+
+      for (const cmd of steps) {
+        if (cmd === 'P1' || cmd === 'P2') continue;
+        if (cmd === 'LEFT') { bdir = (bdir + 3) % 4; continue; }
+        if (cmd === 'RIGHT') { bdir = (bdir + 1) % 4; continue; }
+        if (cmd === 'LIGHT') {
+          const cell = lvl.grid[by]?.[bx];
+          if (!cell || !cell.rune) return false;
+          const key = `${bx},${by}`;
+          if (litRunes.has(key)) litRunes.delete(key);
+          else litRunes.add(key);
+          if (totalRunes > 0 && litRunes.size === totalRunes) return true;
+          continue;
+        }
+        if (cmd === 'FWD' || cmd === 'JUMP') {
+          const v = DIR_VECTORS[bdir];
+          const nx = bx + v.dx;
+          const ny = by + v.dy;
+          const target = lvl.grid[ny]?.[nx];
+          if (!isWalkable(target)) return false;
+          const diff = target.h - bz;
+          if (cmd === 'FWD') {
+            if (diff !== 0) return false;
+            bx = nx; by = ny;
+            handleTileLanding(bx, by, target);
+          } else {
+            if (diff !== 1 && diff !== -1) return false;
+            bx = nx; by = ny; bz = target.h;
+            handleTileLanding(bx, by, target);
+          }
+        }
+      }
+      return totalRunes > 0 && litRunes.size === totalRunes;
+    }
+
+    function solveLevelBFS(lvl) {
+      const rows = lvl.grid.length;
+      const cols = lvl.grid[0].length;
+      let allRuneMask = 0;
+      const runeIndexMap = {};
+      let rIdx = 0;
+      const portalPairs = {};
+      let initBridge = false;
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const c = lvl.grid[y][x];
+          if (!c) continue;
+          if (c.rune) {
+            runeIndexMap[`${x},${y}`] = rIdx;
+            allRuneMask |= (1 << rIdx);
+            rIdx++;
+          }
+          if (c.bridgeDefaultOpen) initBridge = true;
+          if (c.portal) {
+            if (!portalPairs[c.portal]) portalPairs[c.portal] = [];
+            portalPairs[c.portal].push({ x, y });
+          }
+        }
+      }
+
+      const startState = {
+        x: lvl.start.x,
+        y: lvl.start.y,
+        dir: lvl.start.dir,
+        mask: 0,
+        bridge: initBridge ? 1 : 0,
+        path: []
+      };
+
+      const visited = new Set();
+      const queue = [startState];
+      let head = 0;
+
+      while (head < queue.length && head < 28000) {
+        const cur = queue[head++];
+        if (cur.mask === allRuneMask && allRuneMask > 0) {
+          return cur.path;
+        }
+        if (cur.path.length >= 26) continue;
+
+        const key = `${cur.x},${cur.y},${cur.dir},${cur.mask},${cur.bridge}`;
+        if (visited.has(key)) continue;
+        visited.add(key);
+
+        const curCell = lvl.grid[cur.y][cur.x];
+
+        if (curCell && curCell.rune) {
+          const bit = 1 << runeIndexMap[`${cur.x},${cur.y}`];
+          if ((cur.mask & bit) === 0) {
+            queue.push({ ...cur, mask: cur.mask | bit, path: [...cur.path, 'LIGHT'] });
+          }
+        }
+
+        const v = DIR_VECTORS[cur.dir];
+        const nx = cur.x + v.dx;
+        const ny = cur.y + v.dy;
+        const target = lvl.grid[ny]?.[nx];
+        if (target && (!target.bridge || cur.bridge === 1)) {
+          const diff = target.h - curCell.h;
+          let fx = nx, fy = ny, fBridge = cur.bridge;
+          if (target.switchBridge) fBridge = fBridge ? 0 : 1;
+          if (target.portal && portalPairs[target.portal]?.length === 2) {
+            const [p1, p2] = portalPairs[target.portal];
+            const dest = (p1.x === nx && p1.y === ny) ? p2 : p1;
+            fx = dest.x; fy = dest.y;
+          }
+          if (diff === 0) {
+            queue.push({ x: fx, y: fy, dir: cur.dir, mask: cur.mask, bridge: fBridge, path: [...cur.path, 'FWD'] });
+          } else if (diff === 1 || diff === -1) {
+            queue.push({ x: fx, y: fy, dir: cur.dir, mask: cur.mask, bridge: fBridge, path: [...cur.path, 'JUMP'] });
+          }
+        }
+
+        queue.push({ ...cur, dir: (cur.dir + 3) % 4, path: [...cur.path, 'LEFT'] });
+        queue.push({ ...cur, dir: (cur.dir + 1) % 4, path: [...cur.path, 'RIGHT'] });
+      }
+      return null;
+    }
+
+    const LEVELS = (() => {
+      const list = [];
+      const makeGrid = (r, c) => Array.from({ length: r }, () => Array(c).fill(null));
+
+      // TIER 1: FÁCIL (1..40)
+      for (let i = 1; i <= 40; i++) {
+        let lvl = null;
+
+        if (i === 1) {
+          const g = makeGrid(3, 4);
+          g[1] = [{h:1}, {h:1}, {h:1}, {h:1, rune:true}];
+          lvl = {
+            id: 1, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
+            name: 'O Despertar da Ilha',
+            desc: 'Avance 3 lajes até o altar circular e acenda a runa ancestral.',
+            start: { x: 0, y: 1, dir: 0 }, limits: { MAIN: 8, P1: 0, P2: 0 },
+            hintText: 'Use 3x Avançar (⬆️) e 1x Ativar Runa (💠) no MAIN.',
+            grid: g
+          };
+        } else if (i === 2) {
+          const g = makeGrid(3, 3);
+          g[0] = [{h:1}, {h:1, coin:true}, {h:1}];
+          g[1] = [null, null, {h:1}];
+          g[2] = [null, null, {h:1, rune:true}];
+          lvl = {
+            id: 2, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
+            name: 'A Curva do Santuário',
+            desc: 'Vire à direita na esquina para alcançar o altar.',
+            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 10, P1: 0, P2: 0 },
+            hintText: 'Avance 2x, gire à direita (↱), avance 2x e ative!',
+            grid: g
+          };
+        } else if (i === 3) {
+          const g = makeGrid(1, 5);
+          g[0] = [{h:1}, {h:1}, {h:2}, {h:3}, {h:3, rune:true}];
+          lvl = {
+            id: 3, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
+            name: 'Degraus Esculpidos',
+            desc: 'Use Saltar (🦘) sempre que o terreno subir ou descer 1 degrau.',
+            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 10, P1: 0, P2: 0 },
+            hintText: 'Avance, salte 2 degraus, avance e ative a runa.',
+            grid: g
+          };
+        } else if (i <= 10) {
+          const g = makeGrid(4, 5);
+          g[0][0] = { h: 1 };
+          g[0][1] = { h: 1, coin: i % 3 === 0 };
+          g[0][2] = { h: 1, rune: i >= 6 };
+          g[1][2] = { h: 1 };
+          g[2][2] = { h: 1 };
+          g[2][3] = { h: 1 };
+          g[2][4] = { h: 1, rune: true };
+          if (i >= 8) {
+            g[3][4] = { h: 1, rune: true };
+          }
+          lvl = {
+            id: i, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
+            name: `Trilha das Runas #${i}`,
+            desc: 'Navegue pelas curvas da ilha e acenda todos os altares circulares.',
+            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: i >= 8 ? 15 : 12, P1: 0, P2: 0 },
+            hintText: 'Planeje cada curva antes de executar e ative todas as runas.',
+            grid: g
+          };
+        } else if (i <= 20) {
+          const g = makeGrid(4, 5);
+          const peak = (i % 3) + 2;
+          g[1][0] = { h: 1 };
+          g[1][1] = { h: 2, rune: i % 2 === 0 };
+          g[1][2] = { h: peak >= 3 ? 3 : 2, coin: true };
+          g[1][3] = { h: 2 };
+          g[1][4] = { h: 1, rune: true };
+          if (i >= 15) {
+            g[2][4] = { h: 2, rune: true };
+          }
+          lvl = {
+            id: i, difficulty: 'Fácil', chapter: 'Cap. 2: Saltos & Terraços',
+            name: `Terraços Suspensos #${i - 10}`,
+            desc: 'Domine os saltos de subida e descida entre terraços de pedra.',
+            start: { x: 0, y: 1, dir: 0 }, limits: { MAIN: 12, P1: 0, P2: 0 },
+            hintText: 'Lembre-se: Saltar (🦘) funciona tanto para subir quanto para descer 1 nível!',
+            grid: g
+          };
+        } else if (i <= 30) {
+          const usePortal = i % 2 === 1;
+          if (usePortal) {
+            const g = makeGrid(4, 5);
+            g[0][0] = { h: 1 };
+            g[0][1] = { h: 1, coin: true };
+            g[0][2] = { h: 1, portal: 'A' };
+            g[3][2] = { h: 2, portal: 'A' };
+            g[3][3] = { h: 2 };
+            g[3][4] = { h: 2, rune: true };
+            if (i >= 25) {
+              g[2][4] = { h: 3, rune: true };
+            }
+            lvl = {
+              id: i, difficulty: 'Fácil', chapter: 'Cap. 3: Portais & Pontes',
+              name: `Portal Dimensional #${i - 20}`,
+              desc: 'Entre no Portal Ciano para atravessar instantaneamente até o outro lado da ilha!',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 12, P1: 0, P2: 0 },
+              hintText: 'Ao avançar sobre o portal ciano, seu guardião sai pelo outro portal na mesma direção.',
+              grid: g
+            };
+          } else {
+            const g = makeGrid(3, 5);
+            g[0][0] = { h: 1 };
+            g[0][1] = { h: 1, switchBridge: true };
+            g[1][1] = { h: 1, coin: true };
+            g[1][2] = { h: 1, bridge: true };
+            g[1][3] = { h: 1 };
+            g[1][4] = { h: 1, rune: true };
+            if (i >= 26) {
+              g[0][4] = { h: 2, rune: true };
+            }
+            lvl = {
+              id: i, difficulty: 'Fácil', chapter: 'Cap. 3: Portais & Pontes',
+              name: `Ponte de Luz #${i - 20}`,
+              desc: 'Pise no selo dourado para materializar a ponte holográfica sobre o abismo.',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 12, P1: 0, P2: 0 },
+              hintText: 'Passe pelo piso com núcleo amarelo antes de cruzar a ponte pontilhada.',
+              grid: g
+            };
+          }
+        } else {
+          const stepsCount = 3 + ((i - 31) % 3);
+          const patternType = (i - 31) % 3;
+          if (patternType === 0) {
+            const g = makeGrid(1, stepsCount * 2 + 1);
+            g[0][0] = { h: 1 };
+            for (let k = 1; k <= stepsCount; k++) {
+              g[0][k * 2 - 1] = { h: 1, coin: k === 2 };
+              g[0][k * 2] = { h: 1, rune: true };
+            }
+            lvl = {
+              id: i, difficulty: 'Fácil', chapter: 'Cap. 4: Poder das Funções',
+              name: `Eco de Função #${i - 30}`,
+              desc: 'Use PROC 1 (P1) para repetir a sequência [Avançar, Avançar, Ativar Runa] sem lotar o MAIN!',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: stepsCount + 1, P1: 5, P2: 0 },
+              hintText: `Coloque [Avançar, Avançar, Ativar Runa] em P1 e chame P1 ${stepsCount} vezes no MAIN.`,
+              solution: { MAIN: Array(stepsCount).fill('P1'), P1: ['FWD', 'FWD', 'LIGHT'], P2: [] },
+              grid: g
+            };
+          } else if (patternType === 1) {
+            const g = makeGrid(1, stepsCount + 1);
+            g[0][0] = { h: 1 };
+            for (let k = 1; k <= stepsCount; k++) {
+              g[0][k] = { h: k + 1, rune: true };
+            }
+            lvl = {
+              id: i, difficulty: 'Fácil', chapter: 'Cap. 4: Poder das Funções',
+              name: `Escada Modular #${i - 30}`,
+              desc: 'Suba e acenda cada degrau reutilizando P1.',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: stepsCount + 1, P1: 4, P2: 0 },
+              hintText: `Em P1: [Saltar, Ativar Runa]. No MAIN: chame P1 ${stepsCount}x.`,
+              solution: { MAIN: Array(stepsCount).fill('P1'), P1: ['JUMP', 'LIGHT'], P2: [] },
+              grid: g
+            };
+          } else {
+            const g = makeGrid(4, 4);
+            g[0] = [{h:1}, {h:1}, {h:1}, {h:1, rune:true}];
+            g[1] = [{h:1}, null, null, {h:1}];
+            g[2] = [{h:1}, null, null, {h:1}];
+            g[3] = [{h:1, rune:true}, {h:1}, {h:1}, {h:1, rune:true}];
+            lvl = {
+              id: i, difficulty: 'Fácil', chapter: 'Cap. 4: Poder das Funções',
+              name: `Perímetro Sagrado #${i - 30}`,
+              desc: 'Cada lado do santuário segue exatamente a mesma rotina P1.',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 5, P1: 6, P2: 0 },
+              hintText: 'P1: [Avançar, Avançar, Avançar, Ativar Runa, Girar Dir]. MAIN: [P1, P1, P1].',
+              solution: { MAIN: ['P1', 'P1', 'P1'], P1: ['FWD', 'FWD', 'FWD', 'LIGHT', 'RIGHT'], P2: [] },
+              grid: g
+            };
+          }
+        }
+
+        if (!lvl.solution) {
+          const path = solveLevelBFS(lvl);
+          lvl.solution = { MAIN: path || ['FWD', 'LIGHT'], P1: [], P2: [] };
+        }
+        lvl.optimal = lvl.solution.MAIN.length + lvl.solution.P1.length + lvl.solution.P2.length;
+        lvl.reward = 25 + Math.floor(i / 5) * 5;
+        list.push(lvl);
+      }
+
+      // TIER 2: MÉDIO (41..80)
+      for (let i = 41; i <= 80; i++) {
+        const idx = i - 40;
+        let lvl = null;
+
+        if (idx <= 15) {
+          const mode = idx % 3;
+          if (mode === 1) {
+            const steps = 3 + (idx % 2);
+            const g = makeGrid(steps + 1, steps + 1);
+            g[steps][0] = { h: 1 };
+            for (let s = 0; s < steps; s++) {
+              g[steps - s - 1][s] = { h: 1 };
+              g[steps - s - 1][s + 1] = { h: 1, rune: true, coin: s === 1 };
+            }
+            lvl = {
+              id: i, difficulty: 'Médio', chapter: 'Cap. 5: Geometria & Padrões',
+              name: `Zigue-Zague Rúnico #${idx}`,
+              desc: 'Encapsule o movimento de escada diagonal dentro de P1.',
+              start: { x: 0, y: steps, dir: 3 }, limits: { MAIN: steps + 1, P1: 6, P2: 0 },
+              hintText: 'Em P1: [Avançar, Girar Dir, Avançar, Ativar Runa, Girar Esq].',
+              solution: { MAIN: Array(steps).fill('P1'), P1: ['FWD', 'RIGHT', 'FWD', 'LIGHT', 'LEFT'], P2: [] },
+              grid: g
+            };
+          } else if (mode === 2) {
+            const arches = 3;
+            const g = makeGrid(1, arches * 3 + 1);
+            g[0][0] = { h: 1 };
+            for (let a = 0; a < arches; a++) {
+              g[0][a * 3 + 1] = { h: 2, rune: true };
+              g[0][a * 3 + 2] = { h: 1, coin: a === 1 };
+              g[0][a * 3 + 3] = { h: 1 };
+            }
+            lvl = {
+              id: i, difficulty: 'Médio', chapter: 'Cap. 5: Geometria & Padrões',
+              name: `Arcos do Aqueduto #${idx}`,
+              desc: 'Salte sobre cada arco, acenda o topo e desça para o próximo vão.',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 6, P2: 0 },
+              hintText: 'P1: [Saltar, Ativar Runa, Saltar, Avançar]. Repita P1 3 vezes.',
+              solution: { MAIN: ['P1', 'P1', 'P1'], P1: ['JUMP', 'LIGHT', 'JUMP', 'FWD'], P2: [] },
+              grid: g
+            };
+          } else {
+            const g = makeGrid(4, 4);
+            g[0] = [{h:1}, {h:2}, {h:2}, {h:1, rune:true}];
+            g[1] = [{h:2}, null, null, {h:2}];
+            g[2] = [{h:2}, null, null, {h:2}];
+            g[3] = [{h:1, rune:true}, {h:2}, {h:2}, {h:1, rune:true}];
+            lvl = {
+              id: i, difficulty: 'Médio', chapter: 'Cap. 5: Geometria & Padrões',
+              name: `Muralha Elevada #${idx}`,
+              desc: 'Suba e desça cada trecho da muralha usando uma única rotina P1.',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 7, P2: 0 },
+              hintText: 'P1: [Saltar, Avançar, Saltar, Ativar Runa, Girar Dir]. MAIN: [P1, P1, P1].',
+              solution: { MAIN: ['P1', 'P1', 'P1'], P1: ['JUMP', 'FWD', 'JUMP', 'LIGHT', 'RIGHT'], P2: [] },
+              grid: g
+            };
+          }
+        } else if (idx <= 30) {
+          const sub = idx % 2;
+          if (sub === 0) {
+            const g = makeGrid(3, 4);
+            g[0] = [{h:1}, {h:1, rune:true}, {h:1, rune:true}, {h:1, rune:true}];
+            g[1] = [null, null, null, {h:1, coin:true}];
+            g[2] = [{h:1, rune:true}, {h:1, rune:true}, {h:1, rune:true}, {h:1}];
+            lvl = {
+              id: i, difficulty: 'Médio', chapter: 'Cap. 6: Dupla Arquitetura (P1+P2)',
+              name: `Corredores Paralelos #${idx - 15}`,
+              desc: 'Use P1 para percorrer e iluminar uma fileira, e P2 para fazer o retorno em U!',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 7, P2: 5 },
+              hintText: 'P1 avança 3x ativando cada runa; P2 faz [Girar Dir, Avançar, Avançar, Girar Dir].',
+              solution: {
+                MAIN: ['P1', 'P2', 'P1'],
+                P1: ['FWD', 'LIGHT', 'FWD', 'LIGHT', 'FWD', 'LIGHT'],
+                P2: ['RIGHT', 'FWD', 'FWD', 'RIGHT']
+              },
+              grid: g
+            };
+          } else {
+            const g = makeGrid(4, 4);
+            g[0] = [{h:1}, {h:2, rune:true}, {h:3, rune:true}, {h:3}];
+            g[1] = [null, null, null, {h:2}];
+            g[2] = [null, null, null, {h:1}];
+            g[3] = [{h:3}, {h:3, rune:true}, {h:2, rune:true}, {h:1, coin:true}];
+            lvl = {
+              id: i, difficulty: 'Médio', chapter: 'Cap. 6: Dupla Arquitetura (P1+P2)',
+              name: `Rampas Gêmeas #${idx - 15}`,
+              desc: 'Suba e ilumine com P1; desça e contorne com P2.',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 6, P2: 6 },
+              hintText: 'P1: [Saltar, Ativar Runa, Saltar, Ativar Runa, Avançar]. P2: [Girar Dir, Saltar, Saltar, Avançar, Girar Dir].',
+              solution: {
+                MAIN: ['P1', 'P2', 'P1'],
+                P1: ['JUMP', 'LIGHT', 'JUMP', 'LIGHT', 'FWD'],
+                P2: ['RIGHT', 'JUMP', 'JUMP', 'FWD', 'RIGHT']
+              },
+              grid: g
+            };
+          }
+        } else {
+          const g = makeGrid(4, 5);
+          g[0] = [{h:1}, {h:1, switchBridge:true}, {h:1, bridge:true}, {h:1, portal:'A'}, null];
+          g[1] = [null, null, null, null, null];
+          g[2] = [{h:2, portal:'A'}, {h:2, rune:true}, {h:2, portal:'B'}, null, null];
+          g[3] = [null, null, {h:3, portal:'B'}, {h:3, rune:true}, {h:3, rune:true}];
+          lvl = {
+            id: i, difficulty: 'Médio', chapter: 'Cap. 7: Circuitos Dimensionais',
+            name: `Rede de Portais #${idx - 30}`,
+            desc: 'Ative a ponte, atravesse o Portal Ciano (A) e o Portal Roxo (B) usando P1 e P2.',
+            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 6, P2: 6 },
+            hintText: 'P1 atravessa a ponte e o portal A: [Avançar, Avançar, Avançar, Avançar, Ativar Runa]. P2 entra no portal B e ilumina o final.',
+            solution: {
+              MAIN: ['P1', 'P2'],
+              P1: ['FWD', 'FWD', 'FWD', 'FWD', 'LIGHT'],
+              P2: ['FWD', 'FWD', 'LIGHT', 'FWD', 'LIGHT']
+            },
+            grid: g
+          };
+        }
+
+        lvl.optimal = lvl.solution.MAIN.length + lvl.solution.P1.length + lvl.solution.P2.length;
+        lvl.reward = 45 + Math.floor(idx / 5) * 6;
+        list.push(lvl);
+      }
+
+      // TIER 3: DIFÍCIL (81..120)
+      for (let i = 81; i <= 120; i++) {
+        const idx = i - 80;
+        let lvl = null;
+
+        if (idx <= 15) {
+          const len = 4 + (idx % 4);
+          const isStair = idx % 2 === 0;
+          const g = makeGrid(1, len + 1);
+          g[0][0] = { h: 1 };
+          for (let k = 1; k <= len; k++) {
+            g[0][k] = { h: isStair ? ((k % 2 === 1) ? 2 : 1) : 1, rune: true, coin: k === len - 1 };
+          }
+          const moveCmd = isStair ? 'JUMP' : 'FWD';
+          lvl = {
+            id: i, difficulty: 'Difícil', chapter: 'Cap. 8: Recursão Infinita',
+            name: `Loop Recursivo #${idx}`,
+            desc: 'O MAIN tem apenas 1 slot! Faça P1 chamar a si mesmo no final para repetir infinitamente até a vitória.',
+            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 1, P1: 4, P2: 0 },
+            hintText: `No MAIN coloque [P1]. Dentro de P1 coloque: [${isStair ? 'Saltar' : 'Avançar'}, Ativar Runa, P1]!`,
+            solution: {
+              MAIN: ['P1'],
+              P1: [moveCmd, 'LIGHT', 'P1'],
+              P2: []
+            },
+            grid: g
+          };
+        } else if (idx <= 30) {
+          const variant = idx % 2;
+          if (variant === 1) {
+            // Espiral fechada 3x3: 4 voltas de [Saltar, Ativar, Saltar, Ativar, Girar Dir] retornam ao início
+            const g = makeGrid(3, 3);
+            g[0] = [{h:1, rune:true}, {h:2, rune:true}, {h:3, rune:true}];
+            g[1] = [{h:2, rune:true}, null, {h:2, rune:true}];
+            g[2] = [{h:3, rune:true}, {h:2, rune:true}, {h:1, rune:true}];
+            lvl = {
+              id: i, difficulty: 'Difícil', chapter: 'Cap. 9: Recursão Cruzada',
+              name: `Espiral Eterna #${idx - 15}`,
+              desc: 'Faça P1 executar o trecho reto e chamar P2, enquanto P2 vira a esquina e chama P1 de volta!',
+              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 1, P1: 6, P2: 3 },
+              hintText: 'MAIN: [P1]. P1: [Saltar, Ativar Runa, Saltar, Ativar Runa, P2]. P2: [Girar Dir, P1].',
+              solution: {
+                MAIN: ['P1'],
+                P1: ['JUMP', 'LIGHT', 'JUMP', 'LIGHT', 'P2'],
+                P2: ['RIGHT', 'P1']
+              },
+              grid: g
+            };
+          } else {
+            // Cascata descendente: cada volta = 2 runas em linha reta + virar e saltar 1 degrau abaixo
+            const g = makeGrid(4, 4);
+            g[0] = [null, {h:3}, {h:3, rune:true}, {h:3, rune:true}];
+            g[1] = [null, null, null, {h:2}];
+            g[2] = [null, null, null, {h:2, rune:true}];
+            g[3] = [{h:1, rune:true}, {h:1, rune:true}, {h:1, coin:true}, {h:2, rune:true}];
+            lvl = {
+              id: i, difficulty: 'Difícil', chapter: 'Cap. 9: Recursão Cruzada',
+              name: `Cascata de Cristal #${idx - 15}`,
+              desc: 'Sincronize toda a cascata usando apenas 1 chamada no MAIN.',
+              start: { x: 1, y: 0, dir: 0 }, limits: { MAIN: 1, P1: 6, P2: 4 },
+              hintText: 'MAIN: [P1]. P1: [Avançar, Ativar Runa, Avançar, Ativar Runa, P2]. P2: [Girar Dir, Saltar, P1].',
+              solution: {
+                MAIN: ['P1'],
+                P1: ['FWD', 'LIGHT', 'FWD', 'LIGHT', 'P2'],
+                P2: ['RIGHT', 'JUMP', 'P1']
+              },
+              grid: g
+            };
+          }
+        } else {
+          const g = makeGrid(4, 5);
+          g[0] = [{h:1}, {h:1, switchBridge:true}, {h:1, bridge:true}, {h:1, rune:true}, {h:1, portal:'A'}];
+          g[1] = [null, null, null, null, null];
+          g[2] = [{h:2, portal:'A'}, {h:2, rune:true}, {h:2, portal:'B'}, null, null];
+          g[3] = [{h:3, portal:'B'}, {h:3, rune:true}, {h:3, rune:true}, {h:3, coin:true}, {h:3, rune:true}];
+          lvl = {
+            id: i, difficulty: 'Difícil', chapter: 'Cap. 10: Núcleo Ancestral',
+            name: `Protocolo Ômega #${idx - 30}`,
+            desc: 'O desafio supremo: combine ponte holográfica, portais A/B e sub-rotinas compactas.',
+            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 3, P1: 6, P2: 6 },
+            hintText: 'MAIN: [P1, P2, P2]. P1: [Avançar, Avançar, Avançar, Ativar Runa, Avançar] (ponte + portal A). P2: [Avançar, Ativar Runa, Avançar, Avançar, Ativar Runa].',
+            solution: {
+              MAIN: ['P1', 'P2', 'P2'],
+              P1: ['FWD', 'FWD', 'FWD', 'LIGHT', 'FWD'],
+              P2: ['FWD', 'LIGHT', 'FWD', 'FWD', 'LIGHT']
+            },
+            grid: g
+          };
+        }
+
+        lvl.optimal = lvl.solution.MAIN.length + lvl.solution.P1.length + lvl.solution.P2.length;
+        lvl.reward = 75 + Math.floor(idx / 4) * 8;
+        list.push(lvl);
+      }
+
+      // Self-verification check during boot
+      for (const l of list) {
+        // Garante que a solução de referência sempre caiba nos slots disponíveis
+        for (const r of ['MAIN', 'P1', 'P2']) {
+          const need = (l.solution[r] || []).length;
+          if (need > (l.limits[r] || 0)) l.limits[r] = need;
+        }
+        if (!simulateHeadless(l, l.solution)) {
+          const bfsPath = solveLevelBFS(l);
+          if (bfsPath) {
+            l.limits.MAIN = Math.max(l.limits.MAIN, bfsPath.length);
+            l.solution = { MAIN: bfsPath, P1: [], P2: [] };
+            l.optimal = bfsPath.length;
+          }
+        }
+      }
+      return list;
+    })();
+
+    // 6. PERSISTENT PLAYER STATE
+    const STORAGE_KEY = 'runaquest_floating_islands_v1';
+
+    let state = {
+      profile: {
+        created: false,
+        name: 'Explorador',
+        avatarType: 'icon',
+        avatarValue: '🦊'
+      },
+      selectedHero: 'kitsu', // 'kitsu' | 'bubo' | 'vael' | 'draco'
+      unlockedAuras: ['none'],
+      equippedAura: 'none',
+      coins: 120,
+      theme: 'forest',
+      currentLevelId: 1,
+      completedLevels: {},
+      unlockedBadges: [],
+      activeRoutine: 'MAIN',
+      programs: { MAIN: [], P1: [], P2: [] },
+      speed: 1,
+      cameraAngle: 0,
+      hintStep: 0,
+      codeLang: 'js',
+      muted: false,
+      seenTips: [],
+      seenHelp: false
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state = { ...state, ...parsed };
+          state.programs = { MAIN: [], P1: [], P2: [] };
+          state.activeRoutine = 'MAIN';
+          state.hintStep = 0;
+          if (!Array.isArray(state.unlockedAuras)) state.unlockedAuras = ['none'];
+          if (!Array.isArray(state.unlockedBadges)) state.unlockedBadges = [];
+          if (!Array.isArray(state.seenTips)) state.seenTips = [];
+          if (!state.completedLevels || typeof state.completedLevels !== 'object') state.completedLevels = {};
+          if (!LEVELS.some(l => l.id === state.currentLevelId)) state.currentLevelId = 1;
+          if (!MYSTIC_AURAS.some(a => a.id === state.equippedAura)) state.equippedAura = 'none';
+          if (typeof state.coins !== 'number' || !isFinite(state.coins)) state.coins = 120;
+          if (!HEROES.some(h => h.id === state.selectedHero)) state.selectedHero = 'kitsu';
+          if (!THEMES[state.theme]) state.theme = 'forest';
+        }
+      } catch (e) {}
+    }
+
+    function saveState() {
+      try {
+        const toSave = {
+          profile: state.profile,
+          selectedHero: state.selectedHero,
+          unlockedAuras: state.unlockedAuras,
+          equippedAura: state.equippedAura,
+          coins: state.coins,
+          theme: state.theme,
+          currentLevelId: state.currentLevelId,
+          completedLevels: state.completedLevels,
+          unlockedBadges: state.unlockedBadges,
+          cameraAngle: state.cameraAngle,
+          muted: SoundFX.isMuted(),
+          seenTips: state.seenTips,
+          seenHelp: state.seenHelp
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      } catch (e) {}
+    }
+
+    function getActiveHero() {
+      return HEROES.find(h => h.id === state.selectedHero) || HEROES[0];
+    }
+
+    function checkAndUnlockBadges(notify = true) {
+      let newlyUnlocked = [];
+      for (const b of BADGES) {
+        if (!state.unlockedBadges.includes(b.id) && b.check(state)) {
+          state.unlockedBadges.push(b.id);
+          newlyUnlocked.push(b);
+        }
+      }
+      if (newlyUnlocked.length > 0) {
+        saveState();
+        if (notify) {
+          const first = newlyUnlocked[0];
+          spawnSticker(`${first.icon} Conquista: ${first.name}!`, window.innerWidth / 2, window.innerHeight * 0.25);
+        }
+      }
+      document.getElementById('badgeCountPill').textContent = state.unlockedBadges.length;
+    }
+
+    // 7. SIMULATION & CHARACTER RUNTIME STATE
+    let sim = {
+      running: false,
+      timerId: null,
+      bot: { x: 0, y: 0, z: 1, dir: 0, visualX: 0, visualY: 0, visualZ: 1, hopOffset: 0, gesture: null, gestureTimer: 0 },
+      litRunes: new Set(),
+      totalRunes: 0,
+      collectedMapCoins: new Set(),
+      totalMapCoins: 0,
+      bridgeOpen: false,
+      portalPairs: {},
+      execQueue: [],
+      currentExecPointer: null,
+      errorPointer: null,
+      particles: []
+    };
+
+    let manualStepQueue = [];
+    let manualStepIndex = 0;
+
+    // Programa mudou: o modo Passo precisa recompilar a fila na próxima vez
+    function invalidateStepQueue() {
+      manualStepIndex = 0;
+      manualStepQueue = [];
+      sim.errorPointer = null;
+    }
+
+    function getCurrentLevel() {
+      return LEVELS.find(l => l.id === state.currentLevelId) || LEVELS[0];
+    }
+
+    function resetSimulation(keepPrograms = true) {
+      stopExecutionLoop();
+      const lvl = getCurrentLevel();
+      const startCell = lvl.grid[lvl.start.y][lvl.start.x];
+      const startH = startCell ? startCell.h : 1;
+
+      sim.bot = {
+        x: lvl.start.x,
+        y: lvl.start.y,
+        z: startH,
+        dir: lvl.start.dir,
+        visualX: lvl.start.x,
+        visualY: lvl.start.y,
+        visualZ: startH,
+        hopOffset: 0,
+        gesture: null,
+        gestureTimer: 0
+      };
+      sim.litRunes = new Set();
+      sim.totalRunes = 0;
+      sim.collectedMapCoins = new Set();
+      sim.totalMapCoins = 0;
+      sim.bridgeOpen = false;
+      sim.portalPairs = {};
+      sim.currentExecPointer = null;
+      sim.errorPointer = null;
+      manualStepIndex = 0;
+      manualStepQueue = [];
+
+      let hasPortal = false;
+      let hasSwitch = false;
+
+      for (let r = 0; r < lvl.grid.length; r++) {
+        for (let c = 0; c < lvl.grid[r].length; c++) {
+          const cell = lvl.grid[r][c];
+          if (!cell) continue;
+          if (cell.rune) sim.totalRunes++;
+          if (cell.coin) sim.totalMapCoins++;
+          if (cell.bridgeDefaultOpen) sim.bridgeOpen = true;
+          if (cell.switchBridge) hasSwitch = true;
+          if (cell.portal) {
+            hasPortal = true;
+            if (!sim.portalPairs[cell.portal]) sim.portalPairs[cell.portal] = [];
+            sim.portalPairs[cell.portal].push({ x: c, y: r });
+          }
+        }
+      }
+
+      if (!keepPrograms) {
+        state.programs = { MAIN: [], P1: [], P2: [] };
+        state.hintStep = 0;
+        state.activeRoutine = 'MAIN';
+      }
+      if ((lvl.limits[state.activeRoutine] || 0) === 0) state.activeRoutine = 'MAIN';
+
+      const legendEl = document.getElementById('mechanicLegend');
+      const badges = [];
+      if (hasPortal) badges.push('<span class="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-200">🌀 Portal Teleporte</span>');
+      if (hasSwitch) badges.push('<span class="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200">⚡ Selo & Ponte de Luz</span>');
+      if (sim.totalMapCoins > 0) badges.push('<span class="px-2 py-0.5 rounded-full bg-yellow-500/20 border border-yellow-400/40 text-yellow-200">🪙 Moeda Bônus</span>');
+      if (badges.length > 0) {
+        legendEl.innerHTML = badges.join('');
+        legendEl.classList.remove('hidden');
+      } else {
+        legendEl.classList.add('hidden');
+      }
+
+      hideStatusBanner();
+      updateRuneProgressUI();
+      renderRoutineSlots();
+      updateCodePreview();
+      updateHintButtonUI();
+    }
+
+    // No celular a ilha fica acima dos comandos: rola para mostrar o guardião se ela estiver fora da tela
+    function revealCanvasOnMobile() {
+      if (window.innerWidth >= 1024) return;
+      const r = document.getElementById('canvasContainer').getBoundingClientRect();
+      if (r.top < 0 || r.bottom > window.innerHeight) {
+        document.getElementById('canvasContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function stopExecutionLoop() {
+      sim.running = false;
+      if (sim.timerId) {
+        clearTimeout(sim.timerId);
+        sim.timerId = null;
+      }
+      sim.currentExecPointer = null;
+      document.getElementById('btnRun').innerHTML = '<span>▶</span> EXECUTAR';
+    }
+
+    function compileExecutionSteps() {
+      const steps = [];
+      const MAX_STEPS = 180;
+
+      function expand(routineName, depth = 0) {
+        if (depth > 28 || steps.length >= MAX_STEPS) return;
+        const list = state.programs[routineName] || [];
+        for (let i = 0; i < list.length; i++) {
+          if (steps.length >= MAX_STEPS) break;
+          const cmd = list[i];
+          steps.push({ routine: routineName, index: i, cmd });
+          if (cmd === 'P1') expand('P1', depth + 1);
+          if (cmd === 'P2') expand('P2', depth + 1);
+        }
+      }
+
+      expand('MAIN', 0);
+      return steps;
+    }
+
+    function handleLandingEffects(x, y, cell) {
+      const lvl = getCurrentLevel();
+
+      const key = `${x},${y}`;
+      if (cell.coin && !sim.collectedMapCoins.has(key)) {
+        sim.collectedMapCoins.add(key);
+        SoundFX.coinPickup();
+        spawnBurstParticles(x, y, cell.h, 14, '#fbbf24');
+        updateRuneProgressUI();
+      }
+
+      if (cell.switchBridge) {
+        sim.bridgeOpen = !sim.bridgeOpen;
+        SoundFX.bridgeToggle();
+        spawnBurstParticles(x, y, cell.h, 16, '#fbbf24');
+        showStatusBanner(sim.bridgeOpen ? '⚡ Ponte Holográfica MATERIALIZADA!' : '⚡ Ponte Holográfica DESATIVADA!', 'info');
+      }
+
+      if (cell.portal && sim.portalPairs[cell.portal]?.length === 2) {
+        const [p1, p2] = sim.portalPairs[cell.portal];
+        const dest = (p1.x === x && p1.y === y) ? p2 : p1;
+        spawnBurstParticles(x, y, cell.h, 18, '#22d3ee');
+        sim.bot.x = dest.x;
+        sim.bot.y = dest.y;
+        sim.bot.z = lvl.grid[dest.y][dest.x].h;
+        sim.bot.visualX = dest.x;
+        sim.bot.visualY = dest.y;
+        sim.bot.visualZ = sim.bot.z;
+        SoundFX.portal();
+        spawnBurstParticles(dest.x, dest.y, sim.bot.z, 20, '#e879f9');
+      }
+    }
+
+    function executeSingleCommand(stepObj) {
+      const lvl = getCurrentLevel();
+      const { cmd, routine, index } = stepObj;
+      sim.currentExecPointer = { routine, index };
+      renderRoutineSlots();
+
+      if (cmd === 'P1' || cmd === 'P2') {
+        SoundFX.click();
+        return { ok: true };
+      }
+
+      if (cmd === 'LEFT') {
+        sim.bot.dir = (sim.bot.dir + 3) % 4;
+        SoundFX.turn();
+        return { ok: true };
+      }
+
+      if (cmd === 'RIGHT') {
+        sim.bot.dir = (sim.bot.dir + 1) % 4;
+        SoundFX.turn();
+        return { ok: true };
+      }
+
+      if (cmd === 'LIGHT') {
+        const cell = lvl.grid[sim.bot.y]?.[sim.bot.x];
+        const key = `${sim.bot.x},${sim.bot.y}`;
+        if (cell && cell.rune) {
+          if (sim.litRunes.has(key)) {
+            sim.litRunes.delete(key);
+            SoundFX.runeOff();
+            showStatusBanner('Runa APAGADA! Ativar uma runa já acesa desliga ela.', 'warn');
+          } else {
+            sim.litRunes.add(key);
+            SoundFX.runeOn();
+            spawnBurstParticles(sim.bot.x, sim.bot.y, sim.bot.z, 18);
+          }
+          updateRuneProgressUI();
+          return { ok: true };
+        } else {
+          SoundFX.error();
+          return { ok: false, reason: 'Nenhum altar rúnico nesta laje para ativar!' };
+        }
+      }
+
+      if (cmd === 'FWD' || cmd === 'JUMP') {
+        const vec = DIR_VECTORS[sim.bot.dir];
+        const nx = sim.bot.x + vec.dx;
+        const ny = sim.bot.y + vec.dy;
+        const targetCell = lvl.grid[ny]?.[nx];
+
+        if (!targetCell) {
+          SoundFX.error();
+          sim.bot.hopOffset = 0.25;
+          return { ok: false, reason: 'Cuidado! Borda da ilha flutuante.' };
+        }
+
+        if (targetCell.bridge && !sim.bridgeOpen) {
+          SoundFX.error();
+          sim.bot.hopOffset = 0.25;
+          return { ok: false, reason: 'Ponte holográfica desligada! Pise no selo dourado primeiro.' };
+        }
+
+        const heightDiff = targetCell.h - sim.bot.z;
+
+        if (cmd === 'FWD') {
+          if (heightDiff !== 0) {
+            SoundFX.error();
+            return { ok: false, reason: heightDiff > 0 ? 'Degrau acima! Use Saltar (🦘).' : 'Degrau abaixo! Use Saltar (🦘).' };
+          }
+          sim.bot.x = nx;
+          sim.bot.y = ny;
+          SoundFX.step();
+          handleLandingEffects(nx, ny, targetCell);
+          return { ok: true };
+        }
+
+        if (cmd === 'JUMP') {
+          if (heightDiff === 1 || heightDiff === -1) {
+            sim.bot.x = nx;
+            sim.bot.y = ny;
+            sim.bot.z = targetCell.h;
+            sim.bot.hopOffset = 0.65;
+            SoundFX.jump();
+            spawnBurstParticles(nx, ny, targetCell.h, 8);
+            handleLandingEffects(nx, ny, targetCell);
+            return { ok: true };
+          } else if (heightDiff === 0) {
+            SoundFX.error();
+            return { ok: false, reason: 'Saltar exige um degrau de 1 nível para cima ou baixo!' };
+          } else {
+            SoundFX.error();
+            return { ok: false, reason: 'Diferença de altura grande demais para saltar!' };
+          }
+        }
+      }
+
+      return { ok: true };
+    }
+
+    function checkWinCondition() {
+      if (sim.totalRunes > 0 && sim.litRunes.size === sim.totalRunes) {
+        stopExecutionLoop();
+        SoundFX.victory();
+        triggerBotGesture('dance');
+        const hero = getActiveHero();
+        spawnSticker(`🏆 ${hero.icon} ${hero.name} Sincronizou!`, window.innerWidth / 2, window.innerHeight * 0.34);
+
+        const lvl = getCurrentLevel();
+        const usedBlocks = state.programs.MAIN.length + state.programs.P1.length + state.programs.P2.length;
+
+        let starsEarned = 1;
+        if (usedBlocks <= lvl.optimal) starsEarned = 3;
+        else if (usedBlocks <= lvl.optimal + 2) starsEarned = 2;
+
+        const prev = state.completedLevels[lvl.id];
+        const mapBonusCoins = sim.collectedMapCoins.size * 15;
+        let earnedCoins = prev ? (starsEarned > prev.stars ? 20 : 10) : lvl.reward;
+        if (starsEarned === 3 && (!prev || prev.stars < 3)) {
+          earnedCoins += 20;
+        }
+        earnedCoins += mapBonusCoins;
+
+        state.coins += earnedCoins;
+        state.completedLevels[lvl.id] = {
+          stars: Math.max(starsEarned, prev?.stars || 0),
+          bestBlocks: Math.min(usedBlocks, prev?.bestBlocks || 999)
+        };
+
+        checkAndUnlockBadges(true);
+        saveState();
+        updateHeaderUI();
+
+        setTimeout(() => {
+          document.getElementById('victoryStarsDisplay').textContent = '⭐'.repeat(starsEarned) + '☆'.repeat(3 - starsEarned);
+          document.getElementById('victoryTitle').textContent = `Ilha ${lvl.id}: ${lvl.name}`;
+          document.getElementById('victorySubtitle').textContent = `Você usou ${usedBlocks} blocos (Meta 3⭐: ≤ ${lvl.optimal} blocos).`;
+          document.getElementById('victoryCoins').textContent = `+${earnedCoins} 🪙`;
+          document.getElementById('victoryRating').textContent =
+            starsEarned === 3 ? '⭐⭐⭐ Código Ótimo!' : starsEarned === 2 ? '⭐⭐ Muito Bom!' : '⭐ Ilha Concluída';
+          document.getElementById('victoryModal').classList.remove('hidden');
+        }, 620);
+        return true;
+      }
+      return false;
+    }
+
+    function startProgramExecution() {
+      if (sim.running) {
+        resetSimulation(true);
+        return;
+      }
+      if (state.programs.MAIN.length === 0) {
+        showStatusBanner('Adicione comandos ao MAIN antes de executar!', 'warn');
+        SoundFX.error();
+        return;
+      }
+
+      resetSimulation(true);
+      revealCanvasOnMobile();
+      sim.execQueue = compileExecutionSteps();
+      sim.running = true;
+      document.getElementById('btnRun').innerHTML = '<span>⏹</span> PARAR';
+
+      let stepIdx = 0;
+      const delayMs = () => (state.speed === 2 ? 220 : 460);
+
+      function tick() {
+        if (!sim.running) return;
+        if (stepIdx >= sim.execQueue.length) {
+          stopExecutionLoop();
+          renderRoutineSlots();
+          if (!checkWinCondition()) {
+            const left = sim.totalRunes - sim.litRunes.size;
+            showStatusBanner(`Fim do programa! Ainda falta${left > 1 ? 'm' : ''} ${left} runa${left > 1 ? 's' : ''} para acender. Adicione mais blocos.`, 'warn', 5500);
+            SoundFX.error();
+          }
+          return;
+        }
+
+        const curStep = sim.execQueue[stepIdx];
+        const res = executeSingleCommand(curStep);
+        stepIdx++;
+
+        if (!res.ok) {
+          stopExecutionLoop();
+          sim.errorPointer = { routine: curStep.routine, index: curStep.index };
+          renderRoutineSlots();
+          showStatusBanner(`❌ ${res.reason || 'Ops! Comando inválido.'} (bloco ${curStep.index + 1} de ${curStep.routine})`, 'error', 6000);
+          return;
+        }
+
+        if (checkWinCondition()) return;
+
+        sim.timerId = setTimeout(tick, delayMs());
+      }
+
+      tick();
+    }
+
+    function executeOneManualStep() {
+      if (sim.running) stopExecutionLoop();
+
+      if (manualStepIndex === 0 || manualStepQueue.length === 0) {
+        if (state.programs.MAIN.length === 0) {
+          showStatusBanner('Adicione blocos ao MAIN primeiro!', 'warn');
+          return;
+        }
+        resetSimulation(true);
+        revealCanvasOnMobile();
+        manualStepQueue = compileExecutionSteps();
+        manualStepIndex = 0;
+      }
+
+      if (manualStepIndex >= manualStepQueue.length) {
+        manualStepIndex = 0;
+        renderRoutineSlots();
+        showStatusBanner('Sequência finalizada. Toque em Passo para reiniciar.', 'info');
+        return;
+      }
+
+      const curStep = manualStepQueue[manualStepIndex];
+      const res = executeSingleCommand(curStep);
+      manualStepIndex++;
+
+      if (!res.ok) {
+        manualStepIndex = 0;
+        sim.currentExecPointer = null;
+        sim.errorPointer = { routine: curStep.routine, index: curStep.index };
+        renderRoutineSlots();
+        showStatusBanner(`❌ ${res.reason} (bloco ${curStep.index + 1} de ${curStep.routine})`, 'error', 6000);
+        return;
+      }
+      if (checkWinCondition()) {
+        manualStepIndex = 0;
+      }
+    }
+
+    // 8. FLOATING ORGANIC ISLAND 2.5D RENDERER (NON-LIGHT-BOT SCENARIO)
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const container = document.getElementById('canvasContainer');
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(300, rect.width * dpr);
+      canvas.height = Math.max(240, rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(() => resizeCanvas()).observe(document.getElementById('canvasContainer'));
+    }
+
+    function transformCoord(x, y, rows, cols) {
+      switch (state.cameraAngle % 4) {
+        case 1: return { rx: rows - 1 - y, ry: x };
+        case 2: return { rx: cols - 1 - x, ry: rows - 1 - y };
+        case 3: return { rx: y, ry: cols - 1 - x };
+        default: return { rx: x, ry: y };
+      }
+    }
+
+    function isoProject(gx, gy, gz, originX, originY, tileW, tileH, elevH) {
+      const sx = originX + (gx - gy) * (tileW / 2);
+      const sy = originY + (gx + gy) * (tileH / 2) - gz * elevH;
+      return { sx, sy };
+    }
+
+    function spawnBurstParticles(gx, gy, gz, count = 12, customColor = null) {
+      const theme = THEMES[state.theme] || THEMES.forest;
+      for (let i = 0; i < count; i++) {
+        sim.particles.push({
+          gx: gx + (Math.random() - 0.5) * 0.4,
+          gy: gy + (Math.random() - 0.5) * 0.4,
+          gz: gz + 0.3,
+          vx: (Math.random() - 0.5) * 0.06,
+          vy: (Math.random() - 0.5) * 0.06,
+          vz: 0.04 + Math.random() * 0.06,
+          life: 1.0,
+          color: customColor || theme.particle,
+          size: 2.5 + Math.random() * 3
+        });
+      }
+    }
+
+    function triggerBotGesture(gestureName) {
+      sim.bot.gesture = gestureName;
+      sim.bot.gestureTimer = 65;
+    }
+
+    // Parallax Sky, Distant Horizons, Aurora/Nebula, Floating Crystal Debris & Ambient Particles
+    function drawAtmosphericBackground(W, H, theme, timestamp) {
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+      skyGrad.addColorStop(0, theme.skyTop);
+      skyGrad.addColorStop(0.55, theme.skyMid);
+      skyGrad.addColorStop(1, theme.skyBottom);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Theme-specific celestial backdrop
+      if (theme.propType === 'glacial') {
+        // Northern Lights (Aurora Borealis ribbons)
+        ctx.save();
+        for (let r = 0; r < 2; r++) {
+          ctx.beginPath();
+          ctx.moveTo(0, H * (0.22 + r * 0.08));
+          for (let x = 0; x <= W; x += 25) {
+            const y = H * (0.22 + r * 0.08) + Math.sin(x * 0.012 + timestamp * 0.0012 + r) * 18;
+            ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = r === 0 ? 'rgba(52, 211, 153, 0.22)' : 'rgba(56, 189, 248, 0.18)';
+          ctx.lineWidth = 22;
+          ctx.stroke();
+        }
+        ctx.restore();
+      } else if (theme.propType === 'astral') {
+        // Twinkling Constellation Stars & Nebula Glow
+        const neb = ctx.createRadialGradient(W * 0.72, H * 0.25, 10, W * 0.72, H * 0.25, W * 0.45);
+        neb.addColorStop(0, 'rgba(232, 121, 249, 0.22)');
+        neb.addColorStop(1, 'rgba(232, 121, 249, 0)');
+        ctx.fillStyle = neb;
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.fillStyle = '#ffffff';
+        for (let s = 0; s < 28; s++) {
+          const sx = (s * 137) % W;
+          const sy = (s * 71) % (H * 0.65);
+          const alpha = 0.25 + 0.55 * Math.abs(Math.sin(timestamp * 0.002 + s));
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.arc(sx, sy, (s % 2) + 0.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      } else if (theme.propType === 'desert') {
+        // Warm Giant Setting Sun
+        const sunGrad = ctx.createRadialGradient(W * 0.76, H * 0.34, 8, W * 0.76, H * 0.34, 68);
+        sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.75)');
+        sunGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.28)');
+        sunGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(W * 0.76, H * 0.34, 68, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Forest Moonbeam Mist
+        const moonGrad = ctx.createRadialGradient(W * 0.24, H * 0.24, 6, W * 0.24, H * 0.24, 58);
+        moonGrad.addColorStop(0, 'rgba(167, 243, 208, 0.55)');
+        moonGrad.addColorStop(1, 'rgba(167, 243, 208, 0)');
+        ctx.fillStyle = moonGrad;
+        ctx.beginPath();
+        ctx.arc(W * 0.24, H * 0.24, 58, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Distant Mountain / Pyramid / Spire Silhouettes (Parallax Layer)
+      ctx.fillStyle = theme.horizonFar;
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+      ctx.lineTo(0, H * 0.72);
+      ctx.lineTo(W * 0.18, H * 0.54);
+      ctx.lineTo(W * 0.38, H * 0.70);
+      ctx.lineTo(W * 0.62, H * 0.50);
+      ctx.lineTo(W * 0.85, H * 0.68);
+      ctx.lineTo(W, H * 0.58);
+      ctx.lineTo(W, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // Floating Distant Sky-Rocks / Crystal Shards around the island
+      for (let i = 0; i < 5; i++) {
+        const rx = ((i * 193 + 60) % (W - 40)) + 20;
+        const ry = H * (0.24 + (i % 3) * 0.16) + Math.sin(timestamp * 0.0015 + i * 1.7) * 7;
+        const sz = 7 + (i % 3) * 4;
+        ctx.save();
+        ctx.translate(rx, ry);
+        ctx.fillStyle = theme.underbellyMid;
+        ctx.beginPath();
+        ctx.moveTo(0, -sz);
+        ctx.lineTo(sz * 0.85, 0);
+        ctx.lineTo(0, sz * 1.4);
+        ctx.lineTo(-sz * 0.85, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = theme.veinColor + '66';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Ambient Drifting Particles (Fireflies / Snowflakes / Golden Dust)
+      ctx.fillStyle = theme.particle;
+      for (let i = 0; i < 18; i++) {
+        const px = ((i * 97 + timestamp * (theme.propType === 'glacial' ? 0.01 : 0.018)) % W);
+        const py = theme.propType === 'glacial'
+          ? ((i * 47 + timestamp * 0.025) % H)
+          : ((i * 53 + Math.sin(timestamp * 0.0014 + i) * 22 + H) % H);
+        ctx.globalAlpha = 0.25 + 0.45 * Math.abs(Math.sin(timestamp * 0.002 + i));
+        ctx.beginPath();
+        ctx.arc(px, py, (i % 2) + 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // Organic Floating Island Underbelly (Stalactites, Glowing Veins, Roots & Hanging Crystals)
+    function drawFloatingIslandBase(renderList, originX, originY, tileW, tileH, elevH, theme, islandBob) {
+      if (renderList.length === 0) return;
+
+      let minX = Infinity, maxX = -Infinity, maxY = -Infinity, avgX = 0;
+      const bottomPoints = [];
+
+      renderList.forEach(item => {
+        const base = isoProject(item.rx, item.ry, 0, originX, originY + islandBob, tileW, tileH, elevH);
+        const pLeft = base.sx - tileW * 0.52;
+        const pRight = base.sx + tileW * 0.52;
+        const pBot = base.sy + tileH * 0.52;
+        if (pLeft < minX) minX = pLeft;
+        if (pRight > maxX) maxX = pRight;
+        if (pBot > maxY) maxY = pBot;
+        avgX += base.sx;
+        bottomPoints.push({ x: base.sx, y: pBot, rx: item.rx, ry: item.ry });
+      });
+
+      avgX /= renderList.length;
+      const spanW = Math.max(tileW * 1.8, maxX - minX);
+      const bellyDepth = Math.min(130, spanW * 0.44);
+
+      ctx.save();
+      // Main Tapered Rocky Island Hull beneath the board
+      const hullGrad = ctx.createLinearGradient(avgX, maxY - tileH, avgX, maxY + bellyDepth);
+      hullGrad.addColorStop(0, theme.underbellyMid);
+      hullGrad.addColorStop(1, theme.underbellyDark);
+
+      ctx.beginPath();
+      ctx.moveTo(minX + tileW * 0.15, maxY - tileH * 0.55);
+      ctx.lineTo(avgX - spanW * 0.26, maxY + bellyDepth * 0.58);
+      ctx.lineTo(avgX - spanW * 0.08, maxY + bellyDepth * 0.88);
+      ctx.lineTo(avgX + tileW * 0.05, maxY + bellyDepth);
+      ctx.lineTo(avgX + spanW * 0.18, maxY + bellyDepth * 0.78);
+      ctx.lineTo(avgX + spanW * 0.34, maxY + bellyDepth * 0.45);
+      ctx.lineTo(maxX - tileW * 0.15, maxY - tileH * 0.55);
+      ctx.closePath();
+      ctx.fillStyle = hullGrad;
+      ctx.fill();
+      ctx.strokeStyle = theme.veinColor + '44';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Glowing Energy Veins / Roots running down the floating island hull
+      ctx.strokeStyle = theme.veinColor + '88';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(avgX - spanW * 0.14, maxY - tileH * 0.1);
+      ctx.quadraticCurveTo(avgX - spanW * 0.06, maxY + bellyDepth * 0.45, avgX + tileW * 0.03, maxY + bellyDepth * 0.92);
+      ctx.moveTo(avgX + spanW * 0.16, maxY - tileH * 0.15);
+      ctx.quadraticCurveTo(avgX + spanW * 0.12, maxY + bellyDepth * 0.35, avgX + spanW * 0.16, maxY + bellyDepth * 0.72);
+      ctx.stroke();
+
+      // Hanging Crystal Cluster at the bottom tip of the floating island
+      const tipX = avgX + tileW * 0.05;
+      const tipY = maxY + bellyDepth;
+      ctx.fillStyle = theme.veinColor;
+      ctx.beginPath();
+      ctx.moveTo(tipX - 6, tipY - 4);
+      ctx.lineTo(tipX, tipY + 16);
+      ctx.lineTo(tipX + 6, tipY - 4);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Perimeter Organic Props (Mushrooms, Ferns, Cacti, Astral Obelisks, Snow Pines)
+    function drawPerimeterProp(px, py, tileW, theme, seed, timestamp) {
+      ctx.save();
+      ctx.translate(px, py);
+      const s = tileW * 0.16;
+
+      if (theme.propType === 'forest') {
+        if (seed % 2 === 0) {
+          // Bioluminescent Mushroom Cluster
+          ctx.fillStyle = '#fef3c7';
+          ctx.fillRect(-s * 0.15, -s * 0.7, s * 0.3, s * 0.7);
+          ctx.beginPath();
+          ctx.arc(0, -s * 0.75, s * 0.55, Math.PI, 0);
+          ctx.fillStyle = '#34d399';
+          ctx.fill();
+        } else {
+          // Lush Fern Leaves
+          ctx.strokeStyle = '#4ade80';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(-s * 0.6, -s * 0.7, -s * 0.9, -s * 0.4);
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(s * 0.6, -s * 0.8, s * 0.85, -s * 0.45);
+          ctx.stroke();
+        }
+      } else if (theme.propType === 'desert') {
+        if (seed % 2 === 0) {
+          // Desert Cactus
+          ctx.fillStyle = '#15803d';
+          ctx.beginPath();
+          ctx.roundRect(-s * 0.22, -s * 1.25, s * 0.44, s * 1.25, s * 0.2);
+          ctx.roundRect(-s * 0.58, -s * 0.9, s * 0.4, s * 0.24, s * 0.1);
+          ctx.roundRect(-s * 0.58, -s * 1.15, s * 0.22, s * 0.45, s * 0.1);
+          ctx.fill();
+        } else {
+          // Sandstone Mini-Obelisk
+          ctx.fillStyle = '#b45309';
+          ctx.beginPath();
+          ctx.moveTo(-s * 0.3, 0);
+          ctx.lineTo(-s * 0.2, -s * 1.1);
+          ctx.lineTo(0, -s * 1.35);
+          ctx.lineTo(s * 0.2, -s * 1.1);
+          ctx.lineTo(s * 0.3, 0);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else if (theme.propType === 'astral') {
+        // Levitating Astral Crystal Spire
+        const hover = Math.sin(timestamp * 0.005 + seed) * 3;
+        ctx.fillStyle = '#e879f9';
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 1.45 + hover);
+        ctx.lineTo(s * 0.36, -s * 0.75 + hover);
+        ctx.lineTo(0, -s * 0.15 + hover);
+        ctx.lineTo(-s * 0.36, -s * 0.75 + hover);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Glacial Snow Pine / Ice Shard
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 1.4);
+        ctx.lineTo(s * 0.55, -s * 0.2);
+        ctx.lineTo(-s * 0.55, -s * 0.2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 1.4);
+        ctx.lineTo(s * 0.26, -s * 0.8);
+        ctx.lineTo(-s * 0.26, -s * 0.8);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // Custom 2.5D Vector Renderer for the 4 Original Characters
+    function drawHeroCharacter(heroId, r, showFace, eyeOffsetX, timestamp) {
+      if (heroId === 'kitsu') {
+        // 1. KITSU — Runic Spirit Fox
+        const tailWave = Math.sin(timestamp * 0.01) * r * 0.35;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.4, -r * 0.7);
+        ctx.quadraticCurveTo(-r * 1.45, -r * 1.3 + tailWave, -r * 1.15, -r * 2.1 + tailWave);
+        ctx.quadraticCurveTo(-r * 0.65, -r * 1.8, -r * 0.35, -r * 1.1);
+        ctx.fillStyle = '#f97316';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(-r * 1.15, -r * 2.05 + tailWave, r * 0.26, 0, Math.PI * 2);
+        ctx.fillStyle = '#fef3c7';
+        ctx.fill();
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.roundRect(-r * 0.62, -r * 1.35, r * 1.24, r * 1.15, r * 0.5);
+        ctx.fillStyle = '#ea580c';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(eyeOffsetX * 0.3, -r * 0.75, r * 0.36, r * 0.42, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#fef3c7';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(0, -r * 1.85, r * 0.85, r * 0.68, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#f97316';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.72, -r * 2.2);
+        ctx.lineTo(-r * 0.88, -r * 3.05);
+        ctx.lineTo(-r * 0.22, -r * 2.45);
+        ctx.closePath();
+        ctx.fillStyle = '#ea580c';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(r * 0.72, -r * 2.2);
+        ctx.lineTo(r * 0.88, -r * 3.05);
+        ctx.lineTo(r * 0.22, -r * 2.45);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(eyeOffsetX * 0.4, -r * 2.18, r * 0.14, 0, Math.PI * 2);
+        ctx.fillStyle = '#34d399';
+        ctx.fill();
+
+        if (showFace) {
+          ctx.beginPath();
+          ctx.ellipse(eyeOffsetX * 0.5, -r * 1.65, r * 0.52, r * 0.3, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#fef3c7';
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(-r * 0.28 + eyeOffsetX * 0.6, -r * 1.88, r * 0.13, 0, Math.PI * 2);
+          ctx.arc(r * 0.28 + eyeOffsetX * 0.6, -r * 1.88, r * 0.13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(eyeOffsetX * 0.7, -r * 1.65, r * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (heroId === 'bubo') {
+        // 2. BUBO — Clockwork Arcane Owl
+        const wingFlap = Math.sin(timestamp * 0.012) * 0.18;
+        ctx.save();
+        ctx.translate(-r * 0.75, -r * 1.2);
+        ctx.rotate(-wingFlap);
+        ctx.beginPath();
+        ctx.ellipse(-r * 0.15, r * 0.25, r * 0.28, r * 0.65, 0.25, 0, Math.PI * 2);
+        ctx.fillStyle = '#b45309';
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(r * 0.75, -r * 1.2);
+        ctx.rotate(wingFlap);
+        ctx.beginPath();
+        ctx.ellipse(r * 0.15, r * 0.25, r * 0.28, r * 0.65, -0.25, 0, Math.PI * 2);
+        ctx.fillStyle = '#b45309';
+        ctx.fill();
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.ellipse(0, -r * 1.35, r * 0.88, r * 1.05, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#d97706';
+        ctx.fill();
+        ctx.strokeStyle = '#fde047';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(eyeOffsetX * 0.3, -r * 0.95, r * 0.34, 0, Math.PI * 2);
+        ctx.fillStyle = '#0f172a';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(eyeOffsetX * 0.3, -r * 0.95, r * 0.18, 0, Math.PI * 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.65, -r * 2.15);
+        ctx.lineTo(-r * 0.85, -r * 2.75);
+        ctx.lineTo(-r * 0.25, -r * 2.3);
+        ctx.moveTo(r * 0.65, -r * 2.15);
+        ctx.lineTo(r * 0.85, -r * 2.75);
+        ctx.lineTo(r * 0.25, -r * 2.3);
+        ctx.fillStyle = '#b45309';
+        ctx.fill();
+
+        if (showFace) {
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(-r * 0.32 + eyeOffsetX * 0.5, -r * 1.78, r * 0.3, 0, Math.PI * 2);
+          ctx.arc(r * 0.32 + eyeOffsetX * 0.5, -r * 1.78, r * 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#78350f';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.fillStyle = '#0284c7';
+          ctx.beginPath();
+          ctx.arc(-r * 0.32 + eyeOffsetX * 0.6, -r * 1.78, r * 0.14, 0, Math.PI * 2);
+          ctx.arc(r * 0.32 + eyeOffsetX * 0.6, -r * 1.78, r * 0.14, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(-r * 0.12 + eyeOffsetX * 0.6, -r * 1.55);
+          ctx.lineTo(r * 0.12 + eyeOffsetX * 0.6, -r * 1.55);
+          ctx.lineTo(eyeOffsetX * 0.6, -r * 1.32);
+          ctx.closePath();
+          ctx.fillStyle = '#fbbf24';
+          ctx.fill();
+        }
+      } else if (heroId === 'vael') {
+        // 3. VAEL — Hooded Astral Mage with Star Staff
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 2.3);
+        ctx.lineTo(-r * 0.92, -r * 0.25);
+        ctx.quadraticCurveTo(0, -r * 0.05, r * 0.92, -r * 0.25);
+        ctx.closePath();
+        ctx.fillStyle = '#6d28d9';
+        ctx.fill();
+        ctx.strokeStyle = '#c4b5fd';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.85, -r * 1.85);
+        ctx.lineTo(0, -r * 3.15);
+        ctx.lineTo(r * 0.85, -r * 1.85);
+        ctx.closePath();
+        ctx.fillStyle = '#5b21b6';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(0, -r * 1.85, r * 0.98, r * 0.26, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#7c3aed';
+        ctx.fill();
+
+        if (showFace) {
+          ctx.beginPath();
+          ctx.ellipse(eyeOffsetX * 0.4, -r * 1.55, r * 0.48, r * 0.34, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#0f172a';
+          ctx.fill();
+
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(-r * 0.2 + eyeOffsetX * 0.5, -r * 1.55, r * 0.11, 0, Math.PI * 2);
+          ctx.arc(r * 0.2 + eyeOffsetX * 0.5, -r * 1.55, r * 0.11, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const staffX = r * 1.05;
+        ctx.strokeStyle = '#fde047';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(staffX, -r * 0.2);
+        ctx.lineTo(staffX, -r * 2.45);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(staffX, -r * 2.55, r * 0.25, 0, Math.PI * 2);
+        ctx.fillStyle = '#e879f9';
+        ctx.fill();
+      } else {
+        // 4. DRACO — Crystal Elemental Dragon
+        const wingBeat = Math.sin(timestamp * 0.015) * r * 0.25;
+        ctx.fillStyle = 'rgba(167, 243, 208, 0.55)';
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 1.5;
+
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.45, -r * 1.35);
+        ctx.lineTo(-r * 1.35, -r * 2.15 + wingBeat);
+        ctx.lineTo(-r * 0.95, -r * 0.95);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(r * 0.45, -r * 1.35);
+        ctx.lineTo(r * 1.35, -r * 2.15 + wingBeat);
+        ctx.lineTo(r * 0.95, -r * 0.95);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.roundRect(-r * 0.65, -r * 1.45, r * 1.3, r * 1.25, r * 0.45);
+        ctx.fillStyle = '#059669';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(eyeOffsetX * 0.3, -r * 0.8, r * 0.38, r * 0.46, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#fde68a';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.roundRect(-r * 0.72, -r * 2.45, r * 1.44, r * 1.05, r * 0.42);
+        ctx.fillStyle = '#10b981';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.45, -r * 2.42);
+        ctx.lineTo(-r * 0.7, -r * 3.05);
+        ctx.lineTo(-r * 0.18, -r * 2.45);
+        ctx.moveTo(r * 0.45, -r * 2.42);
+        ctx.lineTo(r * 0.7, -r * 3.05);
+        ctx.lineTo(r * 0.18, -r * 2.45);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fill();
+
+        if (showFace) {
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(-r * 0.28 + eyeOffsetX * 0.5, -r * 1.95, r * 0.17, 0, Math.PI * 2);
+          ctx.arc(r * 0.28 + eyeOffsetX * 0.5, -r * 1.95, r * 0.17, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#064e3b';
+          ctx.beginPath();
+          ctx.arc(-r * 0.28 + eyeOffsetX * 0.55, -r * 1.95, r * 0.09, 0, Math.PI * 2);
+          ctx.arc(r * 0.28 + eyeOffsetX * 0.55, -r * 1.95, r * 0.09, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function renderLoop(timestamp) {
+      const rect = canvas.getBoundingClientRect();
+      const W = rect.width;
+      const H = rect.height;
+      const theme = THEMES[state.theme] || THEMES.forest;
+      const hero = getActiveHero();
+      const aura = MYSTIC_AURAS.find(a => a.id === state.equippedAura) || MYSTIC_AURAS[0];
+      const lvl = getCurrentLevel();
+
+      // 1. Parallax Sky, Aurora/Sun/Nebula & Distant Mountains
+      drawAtmosphericBackground(W, H, theme, timestamp);
+
+      const rows = lvl.grid.length;
+      const cols = lvl.grid[0].length;
+      const maxDim = Math.max(rows, cols, 4);
+
+      const tileW = Math.min(W / (maxDim + 1.45), H / (maxDim * 0.74 + 2.3), 82);
+      const tileH = tileW * 0.52;
+      const elevH = tileW * 0.28;
+
+      // Gentle levitation bob for the entire floating island
+      const islandBob = Math.sin(timestamp * 0.0022) * 4;
+
+      const rotatedCols = (state.cameraAngle % 2 === 0) ? cols : rows;
+      const rotatedRows = (state.cameraAngle % 2 === 0) ? rows : cols;
+      const originX = W / 2 + (rotatedRows - rotatedCols) * (tileW / 4);
+      const originY = H * 0.34 - ((rotatedRows + rotatedCols) * tileH) / 6 + elevH * 1.35 + islandBob;
+
+      sim.bot.visualX += (sim.bot.x - sim.bot.visualX) * 0.25;
+      sim.bot.visualY += (sim.bot.y - sim.bot.visualY) * 0.25;
+      sim.bot.visualZ += (sim.bot.z - sim.bot.visualZ) * 0.25;
+      sim.bot.hopOffset *= 0.82;
+
+      if (sim.bot.gestureTimer > 0) {
+        sim.bot.gestureTimer--;
+        if (sim.bot.gestureTimer <= 0) sim.bot.gesture = null;
+      }
+
+      const renderList = [];
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const cell = lvl.grid[y][x];
+          if (!cell) continue;
+          const { rx, ry } = transformCoord(x, y, rows, cols);
+          renderList.push({ x, y, rx, ry, cell, depth: rx + ry });
+        }
+      }
+      renderList.sort((a, b) => a.depth - b.depth);
+
+      // 2. Render Organic Rocky Island Hull & Glowing Roots beneath the slabs
+      drawFloatingIslandBase(renderList, originX, originY - islandBob, tileW, tileH, elevH, theme, islandBob);
+
+      const botRot = transformCoord(sim.bot.visualX, sim.bot.visualY, rows, cols);
+      const botDepth = botRot.rx + botRot.ry + 0.15;
+      let botDrawn = false;
+
+      // 3. Render Carved Organic Slabs, Sculpted Stairs, Perimeter Props & Circular Runic Altars
+      function drawOrganicSlab(item) {
+        const { x, y, rx, ry, cell } = item;
+        const h = cell.h;
+        const isRune = !!cell.rune;
+        const isLit = sim.litRunes.has(`${x},${y}`);
+        const isBridge = !!cell.bridge;
+        const bridgeActive = sim.bridgeOpen;
+
+        const topCenter = isoProject(rx, ry, h, originX, originY, tileW, tileH, elevH);
+        const baseBottom = isoProject(rx, ry, 0, originX, originY, tileW, tileH, elevH);
+
+        const pTop    = { x: topCenter.sx, y: topCenter.sy - tileH / 2 };
+        const pRight  = { x: topCenter.sx + tileW / 2, y: topCenter.sy };
+        const pBottom = { x: topCenter.sx, y: topCenter.sy + tileH / 2 };
+        const pLeft   = { x: topCenter.sx - tileW / 2, y: topCenter.sy };
+
+        if (isBridge) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(pTop.x, pTop.y);
+          ctx.lineTo(pRight.x, pRight.y);
+          ctx.lineTo(pBottom.x, pBottom.y);
+          ctx.lineTo(pLeft.x, pLeft.y);
+          ctx.closePath();
+
+          if (bridgeActive) {
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.42)';
+            ctx.fill();
+            ctx.strokeStyle = '#fde047';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          } else {
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+          ctx.restore();
+          return;
+        }
+
+        const bRight  = { x: pRight.x, y: baseBottom.sy };
+        const bBottom = { x: pBottom.x, y: baseBottom.sy + tileH / 2 };
+        const bLeft   = { x: pLeft.x, y: baseBottom.sy };
+
+        // Left Cliff Wall with Natural Strata Lines
+        ctx.beginPath();
+        ctx.moveTo(pLeft.x, pLeft.y);
+        ctx.lineTo(pBottom.x, pBottom.y);
+        ctx.lineTo(bBottom.x, bBottom.y);
+        ctx.lineTo(bLeft.x, bLeft.y);
+        ctx.closePath();
+        ctx.fillStyle = theme.slabLeft;
+        ctx.fill();
+        ctx.strokeStyle = theme.slabStroke;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Sculpted stair step lines on elevated cliff sides
+        if (h > 1) {
+          ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+          ctx.lineWidth = 1;
+          for (let st = 1; st < h; st++) {
+            const stepY = st * elevH;
+            ctx.beginPath();
+            ctx.moveTo(pLeft.x, pLeft.y + stepY);
+            ctx.lineTo(pBottom.x, pBottom.y + stepY);
+            ctx.stroke();
+          }
+        }
+
+        // Right Cliff Wall
+        ctx.beginPath();
+        ctx.moveTo(pBottom.x, pBottom.y);
+        ctx.lineTo(pRight.x, pRight.y);
+        ctx.lineTo(bRight.x, bRight.y);
+        ctx.lineTo(bBottom.x, bBottom.y);
+        ctx.closePath();
+        ctx.fillStyle = theme.slabRight;
+        ctx.fill();
+        ctx.stroke();
+
+        // Top Carved Stone Slab with Beveled Inner Trim (Not a flat Light-bot square!)
+        ctx.beginPath();
+        ctx.moveTo(pTop.x, pTop.y);
+        ctx.lineTo(pRight.x, pRight.y);
+        ctx.lineTo(pBottom.x, pBottom.y);
+        ctx.lineTo(pLeft.x, pLeft.y);
+        ctx.closePath();
+        ctx.fillStyle = theme.slabTop;
+        ctx.fill();
+        ctx.strokeStyle = theme.slabTrim + '66';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Inner carved stone inlay bevel
+        const inset = 0.78;
+        ctx.beginPath();
+        ctx.moveTo(topCenter.sx, topCenter.sy - (tileH / 2) * inset);
+        ctx.lineTo(topCenter.sx + (tileW / 2) * inset, topCenter.sy);
+        ctx.lineTo(topCenter.sx, topCenter.sy + (tileH / 2) * inset);
+        ctx.lineTo(topCenter.sx - (tileW / 2) * inset, topCenter.sy);
+        ctx.closePath();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Perimeter Organic Flora / Crystals on outer edge tiles without special objects
+        const isEdge = (x === 0 || y === 0 || x === cols - 1 || y === rows - 1);
+        if (isEdge && !isRune && !cell.portal && !cell.switchBridge && !cell.coin && !(x === lvl.start.x && y === lvl.start.y) && ((x * 7 + y * 13) % 3 === 0)) {
+          drawPerimeterProp(pLeft.x + tileW * 0.14, pLeft.y, tileW, theme, x + y * 5, timestamp);
+        }
+
+        // CIRCULAR ROTATING RUNIC ALTAR (Replaces Light-bot blue squares)
+        if (isRune) {
+          ctx.save();
+          // Stone Pedestal Base
+          ctx.beginPath();
+          ctx.ellipse(topCenter.sx, topCenter.sy, tileW * 0.28, tileH * 0.28, 0, 0, Math.PI * 2);
+          ctx.fillStyle = theme.altarBase;
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = isLit ? theme.altarRingOn : theme.altarRingOff;
+          ctx.stroke();
+
+          // Rotating Outer Glyph Ring
+          const rot = timestamp * (isLit ? 0.004 : 0.0012);
+          ctx.setLineDash([5, 4]);
+          ctx.beginPath();
+          ctx.ellipse(topCenter.sx, topCenter.sy, tileW * 0.21, tileH * 0.21, rot, 0, Math.PI * 2);
+          ctx.strokeStyle = isLit ? '#ffffff' : theme.altarRingOff + 'aa';
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Central Floating Gem / Crystal
+          const gemFloat = isLit ? Math.sin(timestamp * 0.008) * 3 - 4 : 0;
+          if (isLit) {
+            // Vertical Astral Light Beam when activated
+            const beamGrad = ctx.createLinearGradient(topCenter.sx, topCenter.sy, topCenter.sx, topCenter.sy - tileH * 1.7);
+            beamGrad.addColorStop(0, theme.altarBeam);
+            beamGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = beamGrad;
+            ctx.fillRect(topCenter.sx - tileW * 0.14, topCenter.sy - tileH * 1.7, tileW * 0.28, tileH * 1.7);
+          }
+
+          ctx.beginPath();
+          ctx.arc(topCenter.sx, topCenter.sy + gemFloat, tileW * 0.1, 0, Math.PI * 2);
+          ctx.fillStyle = isLit ? '#fde047' : theme.altarRingOff;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Dimensional Portal Vortex
+        if (cell.portal) {
+          const pColor = cell.portal === 'A' ? '#22d3ee' : '#e879f9';
+          const pulse = 0.78 + Math.sin(timestamp * 0.008) * 0.18;
+          ctx.save();
+          ctx.strokeStyle = pColor;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.ellipse(topCenter.sx, topCenter.sy, tileW * 0.25 * pulse, tileH * 0.25 * pulse, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(topCenter.sx, topCenter.sy, tileW * 0.11, tileH * 0.11, 0, 0, Math.PI * 2);
+          ctx.fillStyle = pColor;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Golden Bridge Seal Pad
+        if (cell.switchBridge) {
+          ctx.save();
+          ctx.fillStyle = sim.bridgeOpen ? '#fde047' : '#d97706';
+          ctx.beginPath();
+          ctx.ellipse(topCenter.sx, topCenter.sy, tileW * 0.18, tileH * 0.18, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#ffffffaa';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Collectible Floating Relic Coin
+        if (cell.coin && !sim.collectedMapCoins.has(`${x},${y}`)) {
+          const floatY = Math.sin(timestamp * 0.006 + x + y) * 4;
+          ctx.save();
+          ctx.fillStyle = '#fbbf24';
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(topCenter.sx, topCenter.sy - tileH * 0.45 + floatY, tileW * 0.11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      function drawActiveHero() {
+        let extraBounce = sim.bot.hopOffset * elevH * 1.6;
+        let tiltAngle = 0;
+
+        if (sim.bot.gesture === 'dance') {
+          extraBounce += Math.abs(Math.sin(timestamp * 0.015)) * 12;
+          tiltAngle = Math.sin(timestamp * 0.015) * 0.22;
+        } else if (sim.bot.gesture === 'jump') {
+          extraBounce += Math.abs(Math.sin(timestamp * 0.02)) * 22;
+        } else if (sim.bot.gesture === 'spin') {
+          tiltAngle = Math.sin(timestamp * 0.03) * 0.35;
+        } else {
+          extraBounce += Math.sin(timestamp * 0.005) * 2.5;
+        }
+
+        const pos = isoProject(botRot.rx, botRot.ry, sim.bot.visualZ, originX, originY, tileW, tileH, elevH);
+        const bx = pos.sx;
+        const by = pos.sy - extraBounce;
+
+        // Ground shadow
+        ctx.beginPath();
+        ctx.ellipse(pos.sx, pos.sy, tileW * 0.22, tileH * 0.22, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.38)';
+        ctx.fill();
+
+        // Optional Mystic Aura Ring on ground
+        if (aura.ringColor) {
+          const pulse = 1 + Math.sin(timestamp * 0.008) * 0.12;
+          ctx.save();
+          ctx.strokeStyle = aura.ringColor;
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.ellipse(pos.sx, pos.sy, tileW * 0.32 * pulse, tileH * 0.32 * pulse, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.rotate(tiltAngle);
+
+        const r = tileW * 0.25;
+        const effectiveDir = (sim.bot.dir + state.cameraAngle) % 4;
+        let eyeOffsetX = 0;
+        let showFace = true;
+        if (effectiveDir === 0) eyeOffsetX = r * 0.25;
+        else if (effectiveDir === 1) eyeOffsetX = -r * 0.25;
+        else if (effectiveDir === 2) { eyeOffsetX = -r * 0.25; showFace = false; }
+        else if (effectiveDir === 3) { eyeOffsetX = r * 0.25; showFace = false; }
+
+        drawHeroCharacter(hero.id, r, showFace, eyeOffsetX, timestamp);
+        ctx.restore();
+
+        // Forward direction indicator dot
+        const fVec = DIR_VECTORS[sim.bot.dir];
+        const frontRot = transformCoord(sim.bot.visualX + fVec.dx * 0.62, sim.bot.visualY + fVec.dy * 0.62, rows, cols);
+        const frontPos = isoProject(frontRot.rx, frontRot.ry, sim.bot.visualZ, originX, originY, tileW, tileH, elevH);
+        const ang = Math.atan2(frontPos.sy - pos.sy, frontPos.sx - pos.sx);
+        const aLen = Math.max(9, tileW * 0.17);
+        ctx.save();
+        ctx.translate(frontPos.sx, frontPos.sy);
+        ctx.rotate(ang);
+        ctx.beginPath();
+        ctx.moveTo(aLen, 0);
+        ctx.lineTo(-aLen * 0.7, -aLen * 0.75);
+        ctx.lineTo(-aLen * 0.3, 0);
+        ctx.lineTo(-aLen * 0.7, aLen * 0.75);
+        ctx.closePath();
+        ctx.fillStyle = '#fbbf24';
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 1.5;
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      for (const item of renderList) {
+        if (!botDrawn && botDepth < item.depth) {
+          drawActiveHero();
+          botDrawn = true;
+        }
+        drawOrganicSlab(item);
+      }
+      if (!botDrawn) drawActiveHero();
+
+      // Update & render particles
+      for (let i = sim.particles.length - 1; i >= 0; i--) {
+        const p = sim.particles[i];
+        p.gx += p.vx;
+        p.gy += p.vy;
+        p.gz += p.vz;
+        p.life -= 0.025;
+        if (p.life <= 0) {
+          sim.particles.splice(i, 1);
+          continue;
+        }
+        const pr = transformCoord(p.gx, p.gy, rows, cols);
+        const pp = isoProject(pr.rx, pr.ry, p.gz, originX, originY, tileW, tileH, elevH);
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(pp.sx, pp.sy, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    // 9. ROUTINE SLOTS, LIVE CODE DRAWER & HEADER UI
+    function renderRoutineSlots() {
+      const lvl = getCurrentLevel();
+      const routines = ['MAIN', 'P1', 'P2'];
+
+      routines.forEach(rName => {
+        const limit = lvl.limits[rName] || 0;
+        const box = document.getElementById(`box-${rName}`);
+        const slotsEl = document.getElementById(`slots-${rName}`);
+        const countEl = document.getElementById(`count-${rName}`);
+
+        if (limit === 0) {
+          box.classList.add('hidden');
+          return;
+        }
+        box.classList.remove('hidden');
+
+        if (state.activeRoutine === rName) {
+          box.classList.remove('border-white/10');
+          box.classList.add('border-emerald-400', 'bg-emerald-500/10');
+        } else {
+          box.classList.add('border-white/10');
+          box.classList.remove('border-emerald-400', 'bg-emerald-500/10');
+        }
+
+        const prog = state.programs[rName] || [];
+        countEl.textContent = `${prog.length} / ${limit}`;
+        slotsEl.innerHTML = '';
+
+        for (let i = 0; i < limit; i++) {
+          const cmdKey = prog[i];
+          const slotBtn = document.createElement('button');
+          slotBtn.type = 'button';
+
+          const isExecutingHere = sim.currentExecPointer &&
+            sim.currentExecPointer.routine === rName &&
+            sim.currentExecPointer.index === i;
+          const isErrorHere = !isExecutingHere && sim.errorPointer &&
+            sim.errorPointer.routine === rName &&
+            sim.errorPointer.index === i;
+
+          if (cmdKey && COMMANDS[cmdKey]) {
+            const meta = COMMANDS[cmdKey];
+            slotBtn.className = `h-11 sm:h-12 rounded-xl border ${meta.color} flex flex-col items-center justify-center shadow transition transform hover:scale-105 ${isExecutingHere ? 'slot-executing' : ''} ${isErrorHere ? 'slot-error' : ''}`;
+            slotBtn.innerHTML = `<span class="text-base sm:text-lg leading-none">${meta.icon}</span><span class="text-[9px] font-bold mt-0.5">${meta.label}</span>`;
+            slotBtn.title = `Remover ${meta.label}`;
+            slotBtn.setAttribute('aria-label', `Bloco ${i + 1} de ${rName}: ${meta.label}. Toque para remover`);
+            slotBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (sim.running) resetSimulation(true);
+              state.activeRoutine = rName;
+              state.programs[rName].splice(i, 1);
+              invalidateStepQueue();
+              SoundFX.remove();
+              renderRoutineSlots();
+              updateCodePreview();
+            });
+          } else {
+            slotBtn.className = `h-11 sm:h-12 rounded-xl border border-dashed border-white/20 bg-black/25 flex items-center justify-center text-xs opacity-40 hover:opacity-70 transition`;
+            slotBtn.textContent = `${i + 1}`;
+            slotBtn.setAttribute('aria-label', `Espaço vazio ${i + 1} de ${rName}`);
+            slotBtn.addEventListener('click', () => {
+              state.activeRoutine = rName;
+              renderRoutineSlots();
+            });
+          }
+          slotsEl.appendChild(slotBtn);
+        }
+      });
+
+      document.getElementById('btnCmdP1').disabled = (lvl.limits.P1 === 0);
+      document.getElementById('btnCmdP2').disabled = (lvl.limits.P2 === 0);
+      document.getElementById('activeRoutineLabel').textContent = `Vão para: ${state.activeRoutine}`;
+    }
+
+    function addCommandToActiveRoutine(cmdKey) {
+      if (sim.running) resetSimulation(true);
+      const lvl = getCurrentLevel();
+      if ((lvl.limits[state.activeRoutine] || 0) === 0) {
+        state.activeRoutine = 'MAIN';
+      }
+
+      const prog = state.programs[state.activeRoutine];
+      if (prog.length >= lvl.limits[state.activeRoutine]) {
+        showStatusBanner(`Limite de ${lvl.limits[state.activeRoutine]} slots atingido em ${state.activeRoutine}!`, 'warn');
+        SoundFX.error();
+        return;
+      }
+
+      prog.push(cmdKey);
+      invalidateStepQueue();
+      SoundFX.click();
+      renderRoutineSlots();
+      updateCodePreview();
+      if ((cmdKey === 'P1' || cmdKey === 'P2') && state.programs[cmdKey].length === 0 && state.activeRoutine !== cmdKey) {
+        showStatusBanner(`${cmdKey} ainda está vazia! Toque na caixa ${cmdKey} e coloque blocos dentro dela.`, 'info', 5000);
+      }
+    }
+
+    function updateCodePreview() {
+      const lvl = getCurrentLevel();
+      const isPy = state.codeLang === 'py';
+      let lines = [];
+
+      if (isPy) {
+        lines.push(`# Ilha ${lvl.id}: ${lvl.name}`);
+        lines.push(`def main():`);
+        if (state.programs.MAIN.length === 0) lines.push(`    pass  # Adicione blocos`);
+        else state.programs.MAIN.forEach(c => lines.push(`    ${COMMANDS[c].py}`));
+
+        if (lvl.limits.P1 > 0) {
+          lines.push(`\ndef proc_p1():`);
+          if (state.programs.P1.length === 0) lines.push(`    pass`);
+          else state.programs.P1.forEach(c => lines.push(`    ${COMMANDS[c].py}`));
+        }
+        if (lvl.limits.P2 > 0) {
+          lines.push(`\ndef proc_p2():`);
+          if (state.programs.P2.length === 0) lines.push(`    pass`);
+          else state.programs.P2.forEach(c => lines.push(`    ${COMMANDS[c].py}`));
+        }
+      } else {
+        lines.push(`// Ilha ${lvl.id}: ${lvl.name}`);
+        lines.push(`function main() {`);
+        if (state.programs.MAIN.length === 0) lines.push(`  // Adicione blocos visuais...`);
+        else state.programs.MAIN.forEach(c => lines.push(`  ${COMMANDS[c].js}`));
+        lines.push(`}`);
+
+        if (lvl.limits.P1 > 0) {
+          lines.push(`\nfunction P1() {`);
+          state.programs.P1.forEach(c => lines.push(`  ${COMMANDS[c].js}`));
+          lines.push(`}`);
+        }
+        if (lvl.limits.P2 > 0) {
+          lines.push(`\nfunction P2() {`);
+          state.programs.P2.forEach(c => lines.push(`  ${COMMANDS[c].js}`));
+          lines.push(`}`);
+        }
+      }
+      document.getElementById('codePreviewText').textContent = lines.join('\n');
+    }
+
+    function updateRuneProgressUI() {
+      document.getElementById('runeProgress').textContent = `${sim.litRunes.size}/${sim.totalRunes}`;
+      const coinEl = document.getElementById('mapCoinCounter');
+      if (sim.totalMapCoins > 0) {
+        coinEl.textContent = `🪙 ${sim.collectedMapCoins.size}/${sim.totalMapCoins}`;
+        coinEl.classList.remove('hidden');
+      } else {
+        coinEl.classList.add('hidden');
+      }
+    }
+
+    function updateHeaderUI() {
+      const lvl = getCurrentLevel();
+      const hero = getActiveHero();
+      document.getElementById('coinCount').textContent = state.coins;
+      document.getElementById('headerPlayerName').textContent = state.profile.name || 'Explorador';
+      document.getElementById('headerHeroIcon').textContent = hero.icon;
+      document.getElementById('headerHeroName').textContent = hero.name;
+
+      const totalStars = Object.values(state.completedLevels).reduce((acc, v) => acc + (v.stars || 0), 0);
+      document.getElementById('headerStarsTotal').textContent = `${totalStars}/360 ⭐`;
+
+      const avatarBox = document.getElementById('headerAvatar');
+      if (state.profile.avatarType === 'image' && state.profile.avatarValue) {
+        avatarBox.innerHTML = `<img src="${state.profile.avatarValue}" class="w-full h-full object-cover" alt="Avatar" />`;
+      } else {
+        avatarBox.textContent = state.profile.avatarValue || hero.icon;
+      }
+
+      const diffBadge = document.getElementById('badgeDiff');
+      diffBadge.textContent = lvl.difficulty;
+      diffBadge.className = 'px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-extrabold border ';
+      if (lvl.difficulty === 'Fácil') {
+        diffBadge.className += 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30';
+      } else if (lvl.difficulty === 'Médio') {
+        diffBadge.className += 'bg-amber-500/20 text-amber-300 border-amber-400/30';
+      } else {
+        diffBadge.className += 'bg-rose-500/20 text-rose-300 border-rose-400/30';
+      }
+
+      document.getElementById('headerLevelTitle').textContent = `Fase ${lvl.id}/120`;
+      document.getElementById('levelNumberBadge').textContent = `FASE ${String(lvl.id).padStart(3, '0')}`;
+      document.getElementById('chapterTag').textContent = lvl.chapter || '';
+      document.getElementById('levelName').textContent = lvl.name;
+      document.getElementById('levelDesc').textContent = lvl.desc;
+      document.getElementById('optimalTargetLabel').textContent = `Meta 3⭐: ≤ ${lvl.optimal} blocos`;
+
+      document.documentElement.setAttribute('data-theme', state.theme);
+      document.getElementById('themeSelect').value = state.theme;
+      document.getElementById('badgeCountPill').textContent = state.unlockedBadges.length;
+    }
+
+    let bannerTimeout = null;
+    function showStatusBanner(msg, type = 'info', duration = 3400) {
+      const el = document.getElementById('statusBanner');
+      el.textContent = msg;
+      el.classList.remove('hidden', 'text-rose-300', 'border-rose-400/50', 'text-amber-300', 'border-amber-400/50', 'text-emerald-200', 'border-emerald-400/50');
+      if (type === 'error') el.classList.add('text-rose-300', 'border-rose-400/50');
+      else if (type === 'warn') el.classList.add('text-amber-300', 'border-amber-400/50');
+      else el.classList.add('text-emerald-200', 'border-emerald-400/50');
+
+      if (bannerTimeout) clearTimeout(bannerTimeout);
+      bannerTimeout = setTimeout(() => el.classList.add('hidden'), duration);
+    }
+
+    function hideStatusBanner() {
+      document.getElementById('statusBanner').classList.add('hidden');
+    }
+
+    // 10. STICKERS & SMART HINTS
+    function spawnSticker(text, x, y) {
+      SoundFX.sticker();
+      const el = document.createElement('div');
+      el.className = 'floating-sticker px-4 py-2 rounded-2xl bg-slate-900/95 border-2 border-emerald-400/70 text-white font-display font-bold text-sm sm:text-base shadow-2xl whitespace-nowrap';
+      el.textContent = text;
+      el.style.left = `${Math.min(window.innerWidth - 115, Math.max(115, x))}px`;
+      el.style.top = `${Math.max(80, y)}px`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1950);
+    }
+
+    document.querySelectorAll('.sticker-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.getAttribute('data-sticker');
+        const gesture = btn.getAttribute('data-gesture');
+        const rect = btn.getBoundingClientRect();
+        spawnSticker(text, rect.left + rect.width / 2, rect.top - 10);
+        if (gesture) triggerBotGesture(gesture);
+      });
+    });
+
+    const HINT_COST = 25;
+
+    function updateHintButtonUI() {
+      const lbl = document.getElementById('hintCostLabel');
+      if (lbl) lbl.textContent = state.hintStep === 0 ? 'Grátis' : `${HINT_COST} 🪙`;
+    }
+
+    // Próximo passo da solução de referência: corrige o 1º bloco diferente e remove blocos sobrando
+    function applyNextSolutionBlock(lvl) {
+      for (const rName of ['MAIN', 'P1', 'P2']) {
+        const solArr = lvl.solution[rName] || [];
+        const curArr = state.programs[rName];
+        for (let i = 0; i < solArr.length; i++) {
+          if (curArr[i] !== solArr[i]) {
+            curArr[i] = solArr[i];
+            state.activeRoutine = rName;
+            return true;
+          }
+        }
+        if (curArr.length > solArr.length) {
+          curArr.length = solArr.length;
+          state.activeRoutine = rName;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function programMatchesSolution(lvl) {
+      return ['MAIN', 'P1', 'P2'].every(r =>
+        JSON.stringify(state.programs[r]) === JSON.stringify(lvl.solution[r] || []));
+    }
+
+    document.getElementById('btnHint').addEventListener('click', () => {
+      const lvl = getCurrentLevel();
+
+      // 1ª dica (texto) é grátis
+      if (state.hintStep === 0) {
+        state.hintStep = 1;
+        SoundFX.runeOn();
+        updateHintButtonUI();
+        showStatusBanner(`💡 ${lvl.hintText}`, 'info', 10000);
+        showTip('💡', `Dica da Fase ${lvl.id}`, `${lvl.hintText}<br><span class="opacity-70">Toque em Dica de novo (${HINT_COST} 🪙) para colocar o próximo bloco certo automaticamente.</span>`);
+        return;
+      }
+
+      if (programMatchesSolution(lvl)) {
+        showStatusBanner('✅ Sua rotina já está pronta! Toque em ▶ EXECUTAR.', 'info', 4000);
+        return;
+      }
+      if (state.coins < HINT_COST) {
+        showStatusBanner(`Moedas insuficientes (precisa de ${HINT_COST} 🪙). Complete ilhas ou colete moedas no mapa!`, 'warn', 4500);
+        SoundFX.error();
+        return;
+      }
+
+      if (sim.running) resetSimulation(true);
+      state.coins -= HINT_COST;
+      saveState();
+      updateHeaderUI();
+      SoundFX.runeOn();
+      applyNextSolutionBlock(lvl);
+      invalidateStepQueue();
+      renderRoutineSlots();
+      updateCodePreview();
+      showStatusBanner(programMatchesSolution(lvl)
+        ? '✨ Programa completo! Toque em ▶ EXECUTAR.'
+        : `✨ Bloco correto colocado em ${state.activeRoutine} (-${HINT_COST} 🪙).`, 'info', 4000);
+    });
+
+    // 10b. TUTORIAL TIPS (aparecem 1x quando uma mecânica nova surge)
+    function showTip(icon, title, html) {
+      const panel = document.getElementById('tipPanel');
+      document.getElementById('tipIcon').textContent = icon;
+      document.getElementById('tipTitle').textContent = title;
+      document.getElementById('tipText').innerHTML = html;
+      panel.classList.remove('hidden');
+      panel.classList.remove('tip-in');
+      void panel.offsetWidth;
+      panel.classList.add('tip-in');
+    }
+
+    function hideTip() {
+      document.getElementById('tipPanel').classList.add('hidden');
+    }
+
+    document.getElementById('btnCloseTip').addEventListener('click', hideTip);
+
+    const MECHANIC_TIPS = [
+      { id: 'basics', icon: '👋', title: 'Bem-vindo! Seu 1º programa',
+        test: (l) => l.id === 1,
+        text: 'Toque em <b>⬆️ Avançar</b> 3 vezes e depois em <b>💠 Ativar Runa</b>. Os blocos aparecem na caixa MAIN. Depois toque em <b>▶ EXECUTAR</b>. A <b>seta amarela</b> no chão mostra para onde o guardião olha.' },
+      { id: 'turn', icon: '↱', title: 'Girar',
+        test: (l) => l.id === 2,
+        text: '<b>Girar</b> vira o guardião sem sair do lugar. Esquerda/direita são do ponto de vista <i>dele</i> — olhe a seta amarela antes de girar.' },
+      { id: 'jump', icon: '🦘', title: 'Novo: Saltar',
+        test: (l) => hasCell(l, c => true) && levelHasHeightChange(l),
+        text: 'Se a próxima laje é <b>1 degrau mais alta ou mais baixa</b>, use <b>🦘 Saltar</b> em vez de Avançar. Em piso plano, Saltar não funciona.' },
+      { id: 'portal', icon: '🌀', title: 'Novo: Portais',
+        test: (l) => hasCell(l, c => c.portal),
+        text: 'Ao <b>pisar num portal</b>, o guardião sai no outro portal da mesma cor, olhando para a mesma direção.' },
+      { id: 'bridge', icon: '⚡', title: 'Novo: Selo & Ponte de Luz',
+        test: (l) => hasCell(l, c => c.switchBridge),
+        text: 'A ponte pontilhada só existe depois que você <b>pisa no selo dourado</b>. Pisar de novo desliga a ponte!' },
+      { id: 'p1', icon: '⚡', title: 'Novo: Funções (P1)',
+        test: (l) => (l.limits.P1 || 0) > 0,
+        text: '<b>1.</b> Toque na caixa <b>P1</b> (ela fica verde) e coloque blocos nela. <b>2.</b> Toque na caixa <b>MAIN</b> e coloque <b>⚡ P1</b> — cada ⚡ executa tudo o que está em P1.' },
+      { id: 'p2', icon: '🔮', title: 'Novo: Duas funções (P2)',
+        test: (l) => (l.limits.P2 || 0) > 0,
+        text: 'Agora há <b>P1 e P2</b>. Use uma para cada padrão repetido. Toque na caixa para escolher onde os blocos entram.' },
+      { id: 'recursion', icon: '🔁', title: 'Novo: Recursão',
+        test: (l) => l.limits.MAIN === 1,
+        text: 'O MAIN só tem 1 espaço! Coloque <b>⚡ P1</b> no <b>final da própria P1</b>: ela se repete sozinha até todas as runas acenderem.' }
+    ];
+
+    function hasCell(l, fn) {
+      return l.grid.some(row => row.some(c => c && fn(c)));
+    }
+    function levelHasHeightChange(l) {
+      const hs = new Set();
+      l.grid.forEach(row => row.forEach(c => { if (c && !c.bridge) hs.add(c.h); }));
+      return hs.size > 1;
+    }
+
+    function maybeShowMechanicTip() {
+      const lvl = getCurrentLevel();
+      const tip = MECHANIC_TIPS.find(t => !state.seenTips.includes(t.id) && t.test(lvl));
+      if (!tip) return;
+      state.seenTips.push(tip.id);
+      saveState();
+      showTip(tip.icon, tip.title, tip.text);
+    }
+
+    // 11. LOCAL PROFILE MODAL (4 Heroes + Camera + Gallery + Icons)
+    let tempAvatarType = 'icon';
+    let tempAvatarValue = '🦊';
+    let tempSelectedHero = 'kitsu';
+    let activeMediaStream = null;
+
+    function stopCameraStream() {
+      if (activeMediaStream) {
+        activeMediaStream.getTracks().forEach(t => t.stop());
+        activeMediaStream = null;
+      }
+      document.getElementById('cameraVideo').classList.add('hidden');
+      document.getElementById('cameraControls').classList.add('hidden');
+    }
+
+    function renderOnboardingHeroes() {
+      const grid = document.getElementById('onboardingHeroesGrid');
+      grid.innerHTML = '';
+      HEROES.forEach(h => {
+        const isSel = tempSelectedHero === h.id;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `btn-3d p-2 rounded-2xl border flex flex-col items-center text-center transition ${
+          isSel ? 'bg-emerald-500/25 border-emerald-400 ring-2 ring-emerald-400/40' : 'bg-black/35 border-white/10 hover:border-white/30'
+        }`;
+        btn.innerHTML = `
+          <span class="text-2xl leading-none">${h.icon}</span>
+          <span class="font-display font-bold text-xs mt-1">${h.name}</span>
+          <span class="text-[9px] opacity-70 leading-tight">${h.title.split(' ')[0]}</span>
+        `;
+        btn.addEventListener('click', () => {
+          tempSelectedHero = h.id;
+          if (tempAvatarType === 'icon') {
+            tempAvatarValue = h.icon;
+            updateAvatarPreviewUI();
+          }
+          renderOnboardingHeroes();
+          SoundFX.click();
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    function updateAvatarPreviewUI() {
+      const emojiEl = document.getElementById('avatarPreviewEmoji');
+      const imgEl = document.getElementById('avatarPreviewImg');
+      if (tempAvatarType === 'image' && tempAvatarValue) {
+        emojiEl.classList.add('hidden');
+        imgEl.src = tempAvatarValue;
+        imgEl.classList.remove('hidden');
+      } else {
+        imgEl.classList.add('hidden');
+        emojiEl.textContent = tempAvatarValue || '🦊';
+        emojiEl.classList.remove('hidden');
+      }
+    }
+
+    function openProfileModal() {
+      tempSelectedHero = state.selectedHero || 'kitsu';
+      tempAvatarType = state.profile.avatarType || 'icon';
+      tempAvatarValue = state.profile.avatarValue || getActiveHero().icon;
+      document.getElementById('inputPlayerName').value = state.profile.name || '';
+      document.getElementById('cameraErrorMsg').classList.add('hidden');
+      stopCameraStream();
+      renderOnboardingHeroes();
+      updateAvatarPreviewUI();
+      document.getElementById('btnCloseProfile').classList.toggle('hidden', !state.profile.created);
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    document.getElementById('btnOpenProfile').addEventListener('click', openProfileModal);
+
+    // Quick cycle between the 4 heroes directly from top bar
+    document.getElementById('btnQuickHero').addEventListener('click', () => {
+      const idx = HEROES.findIndex(h => h.id === state.selectedHero);
+      const nextHero = HEROES[(idx + 1) % HEROES.length];
+      state.selectedHero = nextHero.id;
+      saveState();
+      updateHeaderUI();
+      triggerBotGesture('jump');
+      spawnSticker(`${nextHero.icon} ${nextHero.name} (${nextHero.title})`, window.innerWidth / 2, window.innerHeight * 0.25);
+    });
+
+    document.querySelectorAll('.icon-choice').forEach(btn => {
+      btn.addEventListener('click', () => {
+        stopCameraStream();
+        tempAvatarType = 'icon';
+        tempAvatarValue = btn.getAttribute('data-icon');
+        updateAvatarPreviewUI();
+        SoundFX.click();
+      });
+    });
+
+    document.getElementById('btnSourceIcons').addEventListener('click', () => {
+      stopCameraStream();
+      updateAvatarPreviewUI();
+    });
+
+    document.getElementById('btnSourceCamera').addEventListener('click', async () => {
+      const errEl = document.getElementById('cameraErrorMsg');
+      errEl.classList.add('hidden');
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Câmera não suportada.');
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 256, height: 256 } });
+        activeMediaStream = stream;
+        const video = document.getElementById('cameraVideo');
+        video.srcObject = stream;
+        document.getElementById('avatarPreviewEmoji').classList.add('hidden');
+        document.getElementById('avatarPreviewImg').classList.add('hidden');
+        video.classList.remove('hidden');
+        document.getElementById('cameraControls').classList.remove('hidden');
+      } catch (err) {
+        errEl.textContent = '⚠️ Câmera indisponível ou bloqueada. Escolha um ícone ou foto da galeria!';
+        errEl.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('btnCapturePhoto').addEventListener('click', () => {
+      const video = document.getElementById('cameraVideo');
+      if (!video || !activeMediaStream) return;
+      const snapCanvas = document.createElement('canvas');
+      snapCanvas.width = 160;
+      snapCanvas.height = 160;
+      const sCtx = snapCanvas.getContext('2d');
+      sCtx.translate(160, 0);
+      sCtx.scale(-1, 1);
+      sCtx.drawImage(video, 0, 0, 160, 160);
+      tempAvatarType = 'image';
+      tempAvatarValue = snapCanvas.toDataURL('image/jpeg', 0.82);
+      stopCameraStream();
+      updateAvatarPreviewUI();
+      SoundFX.runeOn();
+    });
+
+    document.getElementById('btnCancelCamera').addEventListener('click', () => {
+      stopCameraStream();
+      updateAvatarPreviewUI();
+    });
+
+    document.getElementById('inputGalleryFile').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      stopCameraStream();
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = 160;
+          c.height = 160;
+          const cx = c.getContext('2d');
+          const minSide = Math.min(img.width, img.height);
+          const sx = (img.width - minSide) / 2;
+          const sy = (img.height - minSide) / 2;
+          cx.drawImage(img, sx, sy, minSide, minSide, 0, 0, 160, 160);
+          tempAvatarType = 'image';
+          tempAvatarValue = c.toDataURL('image/jpeg', 0.82);
+          updateAvatarPreviewUI();
+          SoundFX.runeOn();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('btnSaveProfile').addEventListener('click', () => {
+      const nameVal = document.getElementById('inputPlayerName').value.trim();
+      state.selectedHero = tempSelectedHero;
+      state.profile = {
+        created: true,
+        name: nameVal || 'Explorador',
+        avatarType: tempAvatarType,
+        avatarValue: tempAvatarValue
+      };
+      stopCameraStream();
+      saveState();
+      updateHeaderUI();
+      document.getElementById('profileModal').classList.add('hidden');
+      SoundFX.victory();
+      const hero = getActiveHero();
+      spawnSticker(`${hero.icon} ${state.profile.name} & ${hero.name}!`, window.innerWidth / 2, window.innerHeight * 0.35);
+      if (!state.seenHelp) {
+        state.seenHelp = true;
+        saveState();
+        setTimeout(openHelpModal, 400);
+      }
+    });
+
+    document.getElementById('btnCloseProfile').addEventListener('click', () => {
+      stopCameraStream();
+      document.getElementById('profileModal').classList.add('hidden');
+    });
+
+    // 12. 120-LEVEL GRID SELECTOR MODAL
+    let selectedDiffTab = 'Fácil';
+
+    function renderLevelsModalGrid() {
+      const grid = document.getElementById('levelsGrid');
+      grid.innerHTML = '';
+
+      const totalCompleted = Object.keys(state.completedLevels).length;
+      const totalStars = Object.values(state.completedLevels).reduce((a, v) => a + (v.stars || 0), 0);
+      document.getElementById('modalProgressSummary').textContent = `Progresso Geral: ${totalCompleted}/120 concluídas • ${totalStars}/360 ⭐`;
+
+      document.querySelectorAll('.diff-tab').forEach(tab => {
+        const isSel = tab.getAttribute('data-diff-tab') === selectedDiffTab;
+        tab.className = `diff-tab btn-3d py-2 rounded-xl font-bold text-xs sm:text-sm border transition ${
+          isSel ? 'bg-emerald-500/30 border-emerald-400 text-emerald-200' : 'bg-white/5 border-white/10 opacity-70'
+        }`;
+      });
+
+      const filtered = LEVELS.filter(l => l.difficulty === selectedDiffTab);
+      filtered.forEach(lvl => {
+        const done = state.completedLevels[lvl.id];
+        const isCurrent = lvl.id === state.currentLevelId;
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = `btn-3d p-2.5 rounded-2xl border transition flex flex-col items-center justify-center text-center ${
+          isCurrent
+            ? 'bg-emerald-500/30 border-emerald-400 ring-2 ring-emerald-400/50'
+            : done
+              ? 'bg-emerald-500/15 border-emerald-400/35 hover:border-emerald-300'
+              : 'bg-black/35 border-white/10 hover:border-white/30'
+        }`;
+        const starsText = done ? '⭐'.repeat(done.stars) : '☆☆☆';
+        card.innerHTML = `
+          <span class="font-code text-sm font-extrabold">${lvl.id}</span>
+          <span class="text-[10px] leading-tight mt-0.5">${starsText}</span>
+          <span class="text-[9px] opacity-65 truncate w-full mt-0.5">${lvl.name}</span>
+        `;
+        card.title = `Ilha ${lvl.id}: ${lvl.name}`;
+        card.addEventListener('click', () => {
+          selectLevel(lvl.id);
+          document.getElementById('levelsModal').classList.add('hidden');
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function selectLevel(levelId) {
+      state.currentLevelId = levelId;
+      saveState();
+      updateHeaderUI();
+      resetSimulation(false);
+      hideTip();
+      maybeShowMechanicTip();
+    }
+
+    document.getElementById('btnLevelModal').addEventListener('click', () => {
+      selectedDiffTab = getCurrentLevel().difficulty;
+      renderLevelsModalGrid();
+      document.getElementById('levelsModal').classList.remove('hidden');
+    });
+
+    document.getElementById('btnCloseLevels').addEventListener('click', () => {
+      document.getElementById('levelsModal').classList.add('hidden');
+    });
+
+    document.getElementById('btnNextPending').addEventListener('click', () => {
+      const nextUnfinished = LEVELS.find(l => !state.completedLevels[l.id]) || LEVELS[0];
+      selectLevel(nextUnfinished.id);
+      document.getElementById('levelsModal').classList.add('hidden');
+    });
+
+    document.querySelectorAll('.diff-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        selectedDiffTab = tab.getAttribute('data-diff-tab');
+        renderLevelsModalGrid();
+      });
+    });
+
+    // 13. HEROES & AURAS SHOP + BADGES MODALS
+    function renderShopModal() {
+      document.getElementById('shopCoinBalance').textContent = state.coins;
+      const heroesGrid = document.getElementById('heroesShopGrid');
+      const aurasGrid = document.getElementById('aurasShopGrid');
+      heroesGrid.innerHTML = '';
+      aurasGrid.innerHTML = '';
+
+      HEROES.forEach(h => {
+        const equipped = state.selectedHero === h.id;
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-2xl border flex flex-col justify-between gap-2 ${
+          equipped ? 'bg-emerald-500/20 border-emerald-400' : 'bg-black/40 border-white/15'
+        }`;
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl shrink-0">${h.icon}</div>
+            <div>
+              <div class="font-display font-bold text-sm">${h.name} <span class="text-[10px] opacity-70 font-normal">• ${h.title}</span></div>
+              <p class="text-[11px] opacity-75 leading-snug">${h.desc}</p>
+            </div>
+          </div>
+          <button type="button" class="hero-select-btn btn-3d w-full py-1.5 rounded-xl font-bold text-xs ${
+            equipped ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white'
+          }">
+            ${equipped ? '✓ Guardião Ativo' : `Selecionar ${h.name}`}
+          </button>
+        `;
+        card.querySelector('.hero-select-btn').addEventListener('click', () => {
+          state.selectedHero = h.id;
+          saveState();
+          updateHeaderUI();
+          renderShopModal();
+          SoundFX.click();
+          triggerBotGesture('jump');
+        });
+        heroesGrid.appendChild(card);
+      });
+
+      MYSTIC_AURAS.forEach(aura => {
+        const unlocked = state.unlockedAuras.includes(aura.id);
+        const equipped = state.equippedAura === aura.id;
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-2xl border flex flex-col justify-between gap-2 ${
+          equipped ? 'bg-amber-500/20 border-amber-400' : 'bg-black/40 border-white/15'
+        }`;
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl shrink-0">${aura.icon}</div>
+            <div>
+              <div class="font-display font-bold text-sm">${aura.name}</div>
+              <p class="text-[11px] opacity-75 leading-snug">${aura.desc}</p>
+            </div>
+          </div>
+          <button type="button" class="aura-action-btn btn-3d w-full py-1.5 rounded-xl font-bold text-xs ${
+            equipped
+              ? 'bg-amber-400 text-slate-950'
+              : unlocked
+                ? 'bg-white/15 hover:bg-white/25 text-white'
+                : 'bg-amber-500/25 hover:bg-amber-500/35 border border-amber-400/40 text-amber-300'
+          }">
+            ${equipped ? '✓ Aura Equipada' : unlocked ? 'Equipar Aura' : `Desbloquear (${aura.price} 🪙)`}
+          </button>
+        `;
+        card.querySelector('.aura-action-btn').addEventListener('click', () => {
+          if (equipped) return;
+          if (unlocked) {
+            state.equippedAura = aura.id;
+            saveState();
+            renderShopModal();
+            SoundFX.click();
+          } else if (state.coins >= aura.price) {
+            state.coins -= aura.price;
+            state.unlockedAuras.push(aura.id);
+            state.equippedAura = aura.id;
+            checkAndUnlockBadges(true);
+            saveState();
+            updateHeaderUI();
+            renderShopModal();
+            SoundFX.victory();
+            spawnSticker(`${aura.icon} ${aura.name} Ativada!`, window.innerWidth / 2, window.innerHeight * 0.35);
+          } else {
+            SoundFX.error();
+            showStatusBanner('Moedas insuficientes para esta aura!', 'warn');
+          }
+        });
+        aurasGrid.appendChild(card);
+      });
+    }
+
+    document.getElementById('btnOpenShop').addEventListener('click', () => {
+      renderShopModal();
+      document.getElementById('shopModal').classList.remove('hidden');
+    });
+    document.getElementById('btnCloseShop').addEventListener('click', () => {
+      document.getElementById('shopModal').classList.add('hidden');
+    });
+
+    function renderBadgesModal() {
+      const grid = document.getElementById('badgesGrid');
+      grid.innerHTML = '';
+
+      BADGES.forEach(b => {
+        const unlocked = state.unlockedBadges.includes(b.id);
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-2xl border flex items-center gap-3 ${
+          unlocked ? 'bg-emerald-500/15 border-emerald-400/50' : 'bg-black/35 border-white/10 opacity-55'
+        }`;
+        card.innerHTML = `
+          <div class="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center text-2xl shrink-0">
+            ${unlocked ? b.icon : '🔒'}
+          </div>
+          <div>
+            <div class="font-display font-bold text-xs sm:text-sm">${b.name}</div>
+            <p class="text-[11px] opacity-75 leading-snug">${b.desc}</p>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    document.getElementById('btnOpenBadges').addEventListener('click', () => {
+      checkAndUnlockBadges(false);
+      renderBadgesModal();
+      document.getElementById('badgesModal').classList.remove('hidden');
+    });
+    document.getElementById('btnCloseBadges').addEventListener('click', () => {
+      document.getElementById('badgesModal').classList.add('hidden');
+    });
+
+    // 14. WIRE ALL CONTROLS
+    document.querySelectorAll('.cmd-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cmd = btn.getAttribute('data-cmd');
+        addCommandToActiveRoutine(cmd);
+      });
+    });
+
+    document.querySelectorAll('.routine-box').forEach(box => {
+      box.addEventListener('click', () => {
+        state.activeRoutine = box.getAttribute('data-routine');
+        renderRoutineSlots();
+      });
+    });
+
+    document.getElementById('btnBackspace').addEventListener('click', () => {
+      if (sim.running) resetSimulation(true);
+      const prog = state.programs[state.activeRoutine];
+      if (prog && prog.length > 0) {
+        prog.pop();
+        invalidateStepQueue();
+        SoundFX.remove();
+        renderRoutineSlots();
+        updateCodePreview();
+      }
+    });
+
+    document.getElementById('btnClearAll').addEventListener('click', () => {
+      resetSimulation(false);
+      SoundFX.remove();
+    });
+
+    document.getElementById('btnRun').addEventListener('click', startProgramExecution);
+    document.getElementById('btnStep').addEventListener('click', executeOneManualStep);
+    document.getElementById('btnStop').addEventListener('click', () => {
+      manualStepIndex = 0;
+      resetSimulation(true);
+      SoundFX.click();
+    });
+
+    document.getElementById('btnSpeed').addEventListener('click', (e) => {
+      state.speed = state.speed === 1 ? 2 : 1;
+      e.currentTarget.textContent = `${state.speed}x`;
+      SoundFX.click();
+    });
+
+    document.getElementById('btnRotateView').addEventListener('click', () => {
+      state.cameraAngle = (state.cameraAngle + 1) % 4;
+      saveState();
+      SoundFX.turn();
+    });
+
+    document.getElementById('themeSelect').addEventListener('change', (e) => {
+      state.theme = e.target.value;
+      saveState();
+      updateHeaderUI();
+      SoundFX.click();
+    });
+
+    document.getElementById('btnToggleAudio').addEventListener('click', (e) => {
+      const muted = SoundFX.toggleMute();
+      e.currentTarget.textContent = muted ? '🔇' : '🔊';
+      saveState();
+    });
+
+    document.getElementById('btnToggleCode').addEventListener('click', () => {
+      const drawer = document.getElementById('codeDrawer');
+      drawer.classList.toggle('hidden');
+      updateCodePreview();
+      SoundFX.click();
+    });
+
+    document.getElementById('btnLangJS').addEventListener('click', () => {
+      state.codeLang = 'js';
+      document.getElementById('btnLangJS').className = 'px-2 py-0.5 rounded bg-sky-500/30 text-sky-200 font-bold';
+      document.getElementById('btnLangPY').className = 'px-2 py-0.5 rounded bg-white/10 text-slate-300 font-bold';
+      updateCodePreview();
+    });
+
+    document.getElementById('btnLangPY').addEventListener('click', () => {
+      state.codeLang = 'py';
+      document.getElementById('btnLangPY').className = 'px-2 py-0.5 rounded bg-sky-500/30 text-sky-200 font-bold';
+      document.getElementById('btnLangJS').className = 'px-2 py-0.5 rounded bg-white/10 text-slate-300 font-bold';
+      updateCodePreview();
+    });
+
+    document.getElementById('btnReplayLevel').addEventListener('click', () => {
+      document.getElementById('victoryModal').classList.add('hidden');
+      resetSimulation(true);
+    });
+
+    document.getElementById('btnNextLevel').addEventListener('click', () => {
+      document.getElementById('victoryModal').classList.add('hidden');
+      const nextId = state.currentLevelId < LEVELS.length ? state.currentLevelId + 1 : 1;
+      selectLevel(nextId);
+    });
+
+    let dragStartX = null;
+    canvas.addEventListener('pointerdown', (e) => { dragStartX = e.clientX; });
+    canvas.addEventListener('pointercancel', () => { dragStartX = null; });
+    canvas.addEventListener('pointerup', (e) => {
+      if (dragStartX === null) return;
+      const diff = e.clientX - dragStartX;
+      if (Math.abs(diff) > 45) {
+        state.cameraAngle = (state.cameraAngle + (diff > 0 ? 1 : 3)) % 4;
+        saveState();
+        SoundFX.turn();
+      }
+      dragStartX = null;
+    });
+
+    // 14b. COMO JOGAR, TECLADO & FECHAR MODAIS
+    function openHelpModal() {
+      document.getElementById('helpModal').classList.remove('hidden');
+    }
+    function closeHelpModal() {
+      document.getElementById('helpModal').classList.add('hidden');
+      maybeShowMechanicTip();
+    }
+    document.getElementById('btnHelp').addEventListener('click', openHelpModal);
+    document.getElementById('btnCloseHelp').addEventListener('click', closeHelpModal);
+    document.getElementById('btnHelpStart').addEventListener('click', closeHelpModal);
+
+    const CLOSABLE_MODALS = ['helpModal', 'levelsModal', 'shopModal', 'badgesModal', 'victoryModal', 'profileModal'];
+
+    function closeModalById(id) {
+      if (id === 'profileModal') {
+        if (!state.profile.created) return; // 1º acesso: precisa criar o perfil
+        stopCameraStream();
+      }
+      if (id === 'helpModal') { closeHelpModal(); return; }
+      if (id === 'victoryModal') {
+        document.getElementById('btnNextLevel').click();
+        return;
+      }
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function anyModalOpen() {
+      return CLOSABLE_MODALS.some(id => !document.getElementById(id).classList.contains('hidden'));
+    }
+
+    // Clique no fundo escuro fecha o modal (exceto vitória, para não pular a fase sem querer)
+    CLOSABLE_MODALS.forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('click', (e) => {
+        if (e.target === el && id !== 'victoryModal') closeModalById(id);
+      });
+    });
+
+    const KEY_TO_CMD = { ArrowUp: 'FWD', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT', ' ': 'JUMP', a: 'LIGHT', A: 'LIGHT', '1': 'P1', '2': 'P2' };
+
+    document.addEventListener('keydown', (e) => {
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key === 'Escape') {
+        const open = CLOSABLE_MODALS.find(id => !document.getElementById(id).classList.contains('hidden'));
+        if (open) { closeModalById(open); e.preventDefault(); }
+        return;
+      }
+      if (anyModalOpen()) return;
+
+      const cmd = KEY_TO_CMD[e.key];
+      if (cmd) {
+        e.preventDefault();
+        const lvl = getCurrentLevel();
+        if ((cmd === 'P1' || cmd === 'P2') && !(lvl.limits[cmd] > 0)) return;
+        addCommandToActiveRoutine(cmd);
+        return;
+      }
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        e.preventDefault();
+        document.getElementById('btnBackspace').click();
+      } else if (e.key === 'Enter') {
+        // Enter sobre um botão focado já o aciona; só executa se nada estiver focado
+        if (tag === 'BUTTON') return;
+        e.preventDefault();
+        startProgramExecution();
+      }
+    });
+
+    // 15. INITIALIZATION ON WINDOW LOAD
+    window.onload = function () {
+      loadState();
+      SoundFX.setMuted(state.muted);
+      document.getElementById('btnToggleAudio').textContent = state.muted ? '🔇' : '🔊';
+      checkAndUnlockBadges(false);
+      resizeCanvas();
+      updateHeaderUI();
+      resetSimulation(false);
+
+      if (!state.profile.created) {
+        openProfileModal();
+      } else {
+        maybeShowMechanicTip();
+      }
+
+      requestAnimationFrame(renderLoop);
+    };
+  </script>
+</body>
+</html>
