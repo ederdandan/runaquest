@@ -1082,7 +1082,7 @@
       { dx: 0, dy: -1 }  // 3: North
     ];
 
-    // 5. DETERMINISTIC 120-LEVEL CAMPAIGN GENERATOR + BFS/SIMULATION VERIFIER
+    // 5. GERADOR DETERMINÍSTICO DE 120 FASES ÚNICAS + VERIFICADOR (BFS/SIMULAÇÃO)
     function simulateHeadless(lvl, programs) {
       const rows = lvl.grid.length;
       const cols = lvl.grid[0].length;
@@ -1264,420 +1264,437 @@
       const list = [];
       const makeGrid = (r, c) => Array.from({ length: r }, () => Array(c).fill(null));
 
-      // TIER 1: FÁCIL (1..40)
-      for (let i = 1; i <= 40; i++) {
-        let lvl = null;
+      // ---------------------------------------------------------------
+      // Gerador determinístico: cada fase nasce de um "programa-solução"
+      // sorteado com semente fixa. O programa é traçado no espaço para
+      // construir a ilha, então a solução de referência sempre funciona
+      // e cada fase tem um mapa único (duplicatas são rejeitadas).
+      // ---------------------------------------------------------------
+      function mulberry32(a) {
+        return function () {
+          a |= 0; a = a + 0x6D2B79F5 | 0;
+          let t = Math.imul(a ^ a >>> 15, 1 | a);
+          t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+      }
+      const randInt = (rng, a, b) => a + Math.floor(rng() * (b - a + 1));
+      const pick = (rng, arr) => arr[Math.floor(rng() * arr.length)];
 
-        if (i === 1) {
-          const g = makeGrid(3, 4);
-          g[1] = [{h:1}, {h:1}, {h:1}, {h:1, rune:true}];
-          lvl = {
-            id: 1, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
-            name: 'O Despertar da Ilha',
-            desc: 'Avance 3 lajes até o altar circular e acenda a runa ancestral.',
-            start: { x: 0, y: 1, dir: 0 }, limits: { MAIN: 8, P1: 0, P2: 0 },
-            hintText: 'Use 3x Avançar (⬆️) e 1x Ativar Runa (💠) no MAIN.',
-            grid: g
-          };
-        } else if (i === 2) {
-          const g = makeGrid(3, 3);
-          g[0] = [{h:1}, {h:1, coin:true}, {h:1}];
-          g[1] = [null, null, {h:1}];
-          g[2] = [null, null, {h:1, rune:true}];
-          lvl = {
-            id: 2, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
-            name: 'A Curva do Santuário',
-            desc: 'Vire à direita na esquina para alcançar o altar.',
-            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 10, P1: 0, P2: 0 },
-            hintText: 'Avance 2x, gire à direita (↱), avance 2x e ative!',
-            grid: g
-          };
-        } else if (i === 3) {
-          const g = makeGrid(1, 5);
-          g[0] = [{h:1}, {h:1}, {h:2}, {h:3}, {h:3, rune:true}];
-          lvl = {
-            id: 3, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
-            name: 'Degraus Esculpidos',
-            desc: 'Use Saltar (🦘) sempre que o terreno subir ou descer 1 degrau.',
-            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 10, P1: 0, P2: 0 },
-            hintText: 'Avance, salte 2 degraus, avance e ative a runa.',
-            grid: g
-          };
-        } else if (i <= 10) {
-          const g = makeGrid(4, 5);
-          g[0][0] = { h: 1 };
-          g[0][1] = { h: 1, coin: i % 3 === 0 };
-          g[0][2] = { h: 1, rune: i >= 6 };
-          g[1][2] = { h: 1 };
-          g[2][2] = { h: 1 };
-          g[2][3] = { h: 1 };
-          g[2][4] = { h: 1, rune: true };
-          if (i >= 8) {
-            g[3][4] = { h: 1, rune: true };
-          }
-          lvl = {
-            id: i, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
-            name: `Trilha das Runas #${i}`,
-            desc: 'Navegue pelas curvas da ilha e acenda todos os altares circulares.',
-            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: i >= 8 ? 15 : 12, P1: 0, P2: 0 },
-            hintText: 'Planeje cada curva antes de executar e ative todas as runas.',
-            grid: g
-          };
-        } else if (i <= 20) {
-          const g = makeGrid(4, 5);
-          const peak = (i % 3) + 2;
-          g[1][0] = { h: 1 };
-          g[1][1] = { h: 2, rune: i % 2 === 0 };
-          g[1][2] = { h: peak >= 3 ? 3 : 2, coin: true };
-          g[1][3] = { h: 2 };
-          g[1][4] = { h: 1, rune: true };
-          if (i >= 15) {
-            g[2][4] = { h: 2, rune: true };
-          }
-          lvl = {
-            id: i, difficulty: 'Fácil', chapter: 'Cap. 2: Saltos & Terraços',
-            name: `Terraços Suspensos #${i - 10}`,
-            desc: 'Domine os saltos de subida e descida entre terraços de pedra.',
-            start: { x: 0, y: 1, dir: 0 }, limits: { MAIN: 12, P1: 0, P2: 0 },
-            hintText: 'Lembre-se: Saltar (🦘) funciona tanto para subir quanto para descer 1 nível!',
-            grid: g
-          };
-        } else if (i <= 30) {
-          const usePortal = i % 2 === 1;
-          if (usePortal) {
-            const g = makeGrid(4, 5);
-            g[0][0] = { h: 1 };
-            g[0][1] = { h: 1, coin: true };
-            g[0][2] = { h: 1, portal: 'A' };
-            g[3][2] = { h: 2, portal: 'A' };
-            g[3][3] = { h: 2 };
-            g[3][4] = { h: 2, rune: true };
-            if (i >= 25) {
-              g[2][4] = { h: 3, rune: true };
-            }
-            lvl = {
-              id: i, difficulty: 'Fácil', chapter: 'Cap. 3: Portais & Pontes',
-              name: `Portal Dimensional #${i - 20}`,
-              desc: 'Entre no Portal Ciano para atravessar instantaneamente até o outro lado da ilha!',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 12, P1: 0, P2: 0 },
-              hintText: 'Ao avançar sobre o portal ciano, seu guardião sai pelo outro portal na mesma direção.',
-              grid: g
-            };
-          } else {
-            const g = makeGrid(3, 5);
-            g[0][0] = { h: 1 };
-            g[0][1] = { h: 1, switchBridge: true };
-            g[1][1] = { h: 1, coin: true };
-            g[1][2] = { h: 1, bridge: true };
-            g[1][3] = { h: 1 };
-            g[1][4] = { h: 1, rune: true };
-            if (i >= 26) {
-              g[0][4] = { h: 2, rune: true };
-            }
-            lvl = {
-              id: i, difficulty: 'Fácil', chapter: 'Cap. 3: Portais & Pontes',
-              name: `Ponte de Luz #${i - 20}`,
-              desc: 'Pise no selo dourado para materializar a ponte holográfica sobre o abismo.',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 12, P1: 0, P2: 0 },
-              hintText: 'Passe pelo piso com núcleo amarelo antes de cruzar a ponte pontilhada.',
-              grid: g
-            };
-          }
-        } else {
-          const stepsCount = 3 + ((i - 31) % 3);
-          const patternType = (i - 31) % 3;
-          if (patternType === 0) {
-            const g = makeGrid(1, stepsCount * 2 + 1);
-            g[0][0] = { h: 1 };
-            for (let k = 1; k <= stepsCount; k++) {
-              g[0][k * 2 - 1] = { h: 1, coin: k === 2 };
-              g[0][k * 2] = { h: 1, rune: true };
-            }
-            lvl = {
-              id: i, difficulty: 'Fácil', chapter: 'Cap. 4: Poder das Funções',
-              name: `Eco de Função #${i - 30}`,
-              desc: 'Use PROC 1 (P1) para repetir a sequência [Avançar, Avançar, Ativar Runa] sem lotar o MAIN!',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: stepsCount + 1, P1: 5, P2: 0 },
-              hintText: `Coloque [Avançar, Avançar, Ativar Runa] em P1 e chame P1 ${stepsCount} vezes no MAIN.`,
-              solution: { MAIN: Array(stepsCount).fill('P1'), P1: ['FWD', 'FWD', 'LIGHT'], P2: [] },
-              grid: g
-            };
-          } else if (patternType === 1) {
-            const g = makeGrid(1, stepsCount + 1);
-            g[0][0] = { h: 1 };
-            for (let k = 1; k <= stepsCount; k++) {
-              g[0][k] = { h: k + 1, rune: true };
-            }
-            lvl = {
-              id: i, difficulty: 'Fácil', chapter: 'Cap. 4: Poder das Funções',
-              name: `Escada Modular #${i - 30}`,
-              desc: 'Suba e acenda cada degrau reutilizando P1.',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: stepsCount + 1, P1: 4, P2: 0 },
-              hintText: `Em P1: [Saltar, Ativar Runa]. No MAIN: chame P1 ${stepsCount}x.`,
-              solution: { MAIN: Array(stepsCount).fill('P1'), P1: ['JUMP', 'LIGHT'], P2: [] },
-              grid: g
-            };
-          } else {
-            const g = makeGrid(4, 4);
-            g[0] = [{h:1}, {h:1}, {h:1}, {h:1, rune:true}];
-            g[1] = [{h:1}, null, null, {h:1}];
-            g[2] = [{h:1}, null, null, {h:1}];
-            g[3] = [{h:1, rune:true}, {h:1}, {h:1}, {h:1, rune:true}];
-            lvl = {
-              id: i, difficulty: 'Fácil', chapter: 'Cap. 4: Poder das Funções',
-              name: `Perímetro Sagrado #${i - 30}`,
-              desc: 'Cada lado do santuário segue exatamente a mesma rotina P1.',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 5, P1: 6, P2: 0 },
-              hintText: 'P1: [Avançar, Avançar, Avançar, Ativar Runa, Girar Dir]. MAIN: [P1, P1, P1].',
-              solution: { MAIN: ['P1', 'P1', 'P1'], P1: ['FWD', 'FWD', 'FWD', 'LIGHT', 'RIGHT'], P2: [] },
-              grid: g
-            };
-          }
-        }
+      // Tags de traçado -> comando real
+      const TAG_CMD = {
+        FWD: 'FWD', FWD_PORTAL: 'FWD', FWD_SWITCH: 'FWD', FWD_BRIDGE: 'FWD',
+        JUMP_UP: 'JUMP', JUMP_DOWN: 'JUMP', LEFT: 'LEFT', RIGHT: 'RIGHT', LIGHT: 'LIGHT', P1: 'P1', P2: 'P2'
+      };
+      const isMove = (c) => c.startsWith('FWD') || c.startsWith('JUMP');
 
-        if (!lvl.solution) {
-          const path = solveLevelBFS(lvl);
-          lvl.solution = { MAIN: path || ['FWD', 'LIGHT'], P1: [], P2: [] };
-        }
-        lvl.optimal = lvl.solution.MAIN.length + lvl.solution.P1.length + lvl.solution.P2.length;
-        lvl.reward = 25 + Math.floor(i / 5) * 5;
-        list.push(lvl);
+      function randStep(rng, jumps) {
+        if (jumps && rng() < 0.5) return rng() < 0.5 ? 'JUMP_UP' : 'JUMP_DOWN';
+        return 'FWD';
       }
 
-      // TIER 2: MÉDIO (41..80)
-      for (let i = 41; i <= 80; i++) {
-        const idx = i - 40;
-        let lvl = null;
-
-        if (idx <= 15) {
-          const mode = idx % 3;
-          if (mode === 1) {
-            const steps = 3 + (idx % 2);
-            const g = makeGrid(steps + 1, steps + 1);
-            g[steps][0] = { h: 1 };
-            for (let s = 0; s < steps; s++) {
-              g[steps - s - 1][s] = { h: 1 };
-              g[steps - s - 1][s + 1] = { h: 1, rune: true, coin: s === 1 };
-            }
-            lvl = {
-              id: i, difficulty: 'Médio', chapter: 'Cap. 5: Geometria & Padrões',
-              name: `Zigue-Zague Rúnico #${idx}`,
-              desc: 'Encapsule o movimento de escada diagonal dentro de P1.',
-              start: { x: 0, y: steps, dir: 3 }, limits: { MAIN: steps + 1, P1: 6, P2: 0 },
-              hintText: 'Em P1: [Avançar, Girar Dir, Avançar, Ativar Runa, Girar Esq].',
-              solution: { MAIN: Array(steps).fill('P1'), P1: ['FWD', 'RIGHT', 'FWD', 'LIGHT', 'LEFT'], P2: [] },
-              grid: g
-            };
-          } else if (mode === 2) {
-            const arches = 3;
-            const g = makeGrid(1, arches * 3 + 1);
-            g[0][0] = { h: 1 };
-            for (let a = 0; a < arches; a++) {
-              g[0][a * 3 + 1] = { h: 2, rune: true };
-              g[0][a * 3 + 2] = { h: 1, coin: a === 1 };
-              g[0][a * 3 + 3] = { h: 1 };
-            }
-            lvl = {
-              id: i, difficulty: 'Médio', chapter: 'Cap. 5: Geometria & Padrões',
-              name: `Arcos do Aqueduto #${idx}`,
-              desc: 'Salte sobre cada arco, acenda o topo e desça para o próximo vão.',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 6, P2: 0 },
-              hintText: 'P1: [Saltar, Ativar Runa, Saltar, Avançar]. Repita P1 3 vezes.',
-              solution: { MAIN: ['P1', 'P1', 'P1'], P1: ['JUMP', 'LIGHT', 'JUMP', 'FWD'], P2: [] },
-              grid: g
-            };
-          } else {
-            const g = makeGrid(4, 4);
-            g[0] = [{h:1}, {h:2}, {h:2}, {h:1, rune:true}];
-            g[1] = [{h:2}, null, null, {h:2}];
-            g[2] = [{h:2}, null, null, {h:2}];
-            g[3] = [{h:1, rune:true}, {h:2}, {h:2}, {h:1, rune:true}];
-            lvl = {
-              id: i, difficulty: 'Médio', chapter: 'Cap. 5: Geometria & Padrões',
-              name: `Muralha Elevada #${idx}`,
-              desc: 'Suba e desça cada trecho da muralha usando uma única rotina P1.',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 7, P2: 0 },
-              hintText: 'P1: [Saltar, Avançar, Saltar, Ativar Runa, Girar Dir]. MAIN: [P1, P1, P1].',
-              solution: { MAIN: ['P1', 'P1', 'P1'], P1: ['JUMP', 'FWD', 'JUMP', 'LIGHT', 'RIGHT'], P2: [] },
-              grid: g
-            };
+      // Padrão curto para P1/P2
+      function randPattern(rng, len, { jumps = false, needLight = true, needMove = true } = {}) {
+        for (let tries = 0; tries < 80; tries++) {
+          const out = [];
+          for (let i = 0; i < len; i++) {
+            const r = rng();
+            if (r < 0.48) out.push(randStep(rng, jumps));
+            else if (r < 0.72) out.push(rng() < 0.5 ? 'LEFT' : 'RIGHT');
+            else out.push('LIGHT');
           }
-        } else if (idx <= 30) {
-          const sub = idx % 2;
-          if (sub === 0) {
-            const g = makeGrid(3, 4);
-            g[0] = [{h:1}, {h:1, rune:true}, {h:1, rune:true}, {h:1, rune:true}];
-            g[1] = [null, null, null, {h:1, coin:true}];
-            g[2] = [{h:1, rune:true}, {h:1, rune:true}, {h:1, rune:true}, {h:1}];
-            lvl = {
-              id: i, difficulty: 'Médio', chapter: 'Cap. 6: Dupla Arquitetura (P1+P2)',
-              name: `Corredores Paralelos #${idx - 15}`,
-              desc: 'Use P1 para percorrer e iluminar uma fileira, e P2 para fazer o retorno em U!',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 7, P2: 5 },
-              hintText: 'P1 avança 3x ativando cada runa; P2 faz [Girar Dir, Avançar, Avançar, Girar Dir].',
-              solution: {
-                MAIN: ['P1', 'P2', 'P1'],
-                P1: ['FWD', 'LIGHT', 'FWD', 'LIGHT', 'FWD', 'LIGHT'],
-                P2: ['RIGHT', 'FWD', 'FWD', 'RIGHT']
-              },
-              grid: g
-            };
-          } else {
-            const g = makeGrid(4, 4);
-            g[0] = [{h:1}, {h:2, rune:true}, {h:3, rune:true}, {h:3}];
-            g[1] = [null, null, null, {h:2}];
-            g[2] = [null, null, null, {h:1}];
-            g[3] = [{h:3}, {h:3, rune:true}, {h:2, rune:true}, {h:1, coin:true}];
-            lvl = {
-              id: i, difficulty: 'Médio', chapter: 'Cap. 6: Dupla Arquitetura (P1+P2)',
-              name: `Rampas Gêmeas #${idx - 15}`,
-              desc: 'Suba e ilumine com P1; desça e contorne com P2.',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 6, P2: 6 },
-              hintText: 'P1: [Saltar, Ativar Runa, Saltar, Ativar Runa, Avançar]. P2: [Girar Dir, Saltar, Saltar, Avançar, Girar Dir].',
-              solution: {
-                MAIN: ['P1', 'P2', 'P1'],
-                P1: ['JUMP', 'LIGHT', 'JUMP', 'LIGHT', 'FWD'],
-                P2: ['RIGHT', 'JUMP', 'JUMP', 'FWD', 'RIGHT']
-              },
-              grid: g
-            };
+          if (needMove && !out.some(isMove)) continue;
+          if (needLight && !out.includes('LIGHT')) continue;
+          if (out.filter(c => c === 'LIGHT').length > 2) continue;
+          let bad = false;
+          for (let i = 1; i < out.length; i++) {
+            const a = out[i - 1], b = out[i];
+            if ((a === 'LEFT' || a === 'RIGHT') && (b === 'LEFT' || b === 'RIGHT')) bad = true;
+            if (a === 'LIGHT' && b === 'LIGHT') bad = true;
           }
-        } else {
-          const g = makeGrid(4, 5);
-          g[0] = [{h:1}, {h:1, switchBridge:true}, {h:1, bridge:true}, {h:1, portal:'A'}, null];
-          g[1] = [null, null, null, null, null];
-          g[2] = [{h:2, portal:'A'}, {h:2, rune:true}, {h:2, portal:'B'}, null, null];
-          g[3] = [null, null, {h:3, portal:'B'}, {h:3, rune:true}, {h:3, rune:true}];
-          lvl = {
-            id: i, difficulty: 'Médio', chapter: 'Cap. 7: Circuitos Dimensionais',
-            name: `Rede de Portais #${idx - 30}`,
-            desc: 'Ative a ponte, atravesse o Portal Ciano (A) e o Portal Roxo (B) usando P1 e P2.',
-            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 4, P1: 6, P2: 6 },
-            hintText: 'P1 atravessa a ponte e o portal A: [Avançar, Avançar, Avançar, Avançar, Ativar Runa]. P2 entra no portal B e ilumina o final.',
-            solution: {
-              MAIN: ['P1', 'P2'],
-              P1: ['FWD', 'FWD', 'FWD', 'FWD', 'LIGHT'],
-              P2: ['FWD', 'FWD', 'LIGHT', 'FWD', 'LIGHT']
-            },
-            grid: g
-          };
+          if (bad) continue;
+          return out;
         }
-
-        lvl.optimal = lvl.solution.MAIN.length + lvl.solution.P1.length + lvl.solution.P2.length;
-        lvl.reward = 45 + Math.floor(idx / 5) * 6;
-        list.push(lvl);
+        return null;
       }
 
-      // TIER 3: DIFÍCIL (81..120)
-      for (let i = 81; i <= 120; i++) {
-        const idx = i - 80;
-        let lvl = null;
-
-        if (idx <= 15) {
-          const len = 4 + (idx % 4);
-          const isStair = idx % 2 === 0;
-          const g = makeGrid(1, len + 1);
-          g[0][0] = { h: 1 };
-          for (let k = 1; k <= len; k++) {
-            g[0][k] = { h: isStair ? ((k % 2 === 1) ? 2 : 1) : 1, rune: true, coin: k === len - 1 };
-          }
-          const moveCmd = isStair ? 'JUMP' : 'FWD';
-          lvl = {
-            id: i, difficulty: 'Difícil', chapter: 'Cap. 8: Recursão Infinita',
-            name: `Loop Recursivo #${idx}`,
-            desc: 'O MAIN tem apenas 1 slot! Faça P1 chamar a si mesmo no final para repetir infinitamente até a vitória.',
-            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 1, P1: 4, P2: 0 },
-            hintText: `No MAIN coloque [P1]. Dentro de P1 coloque: [${isStair ? 'Saltar' : 'Avançar'}, Ativar Runa, P1]!`,
-            solution: {
-              MAIN: ['P1'],
-              P1: [moveCmd, 'LIGHT', 'P1'],
-              P2: []
-            },
-            grid: g
-          };
-        } else if (idx <= 30) {
-          const variant = idx % 2;
-          if (variant === 1) {
-            // Espiral fechada 3x3: 4 voltas de [Saltar, Ativar, Saltar, Ativar, Girar Dir] retornam ao início
-            const g = makeGrid(3, 3);
-            g[0] = [{h:1, rune:true}, {h:2, rune:true}, {h:3, rune:true}];
-            g[1] = [{h:2, rune:true}, null, {h:2, rune:true}];
-            g[2] = [{h:3, rune:true}, {h:2, rune:true}, {h:1, rune:true}];
-            lvl = {
-              id: i, difficulty: 'Difícil', chapter: 'Cap. 9: Recursão Cruzada',
-              name: `Espiral Eterna #${idx - 15}`,
-              desc: 'Faça P1 executar o trecho reto e chamar P2, enquanto P2 vira a esquina e chama P1 de volta!',
-              start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 1, P1: 6, P2: 3 },
-              hintText: 'MAIN: [P1]. P1: [Saltar, Ativar Runa, Saltar, Ativar Runa, P2]. P2: [Girar Dir, P1].',
-              solution: {
-                MAIN: ['P1'],
-                P1: ['JUMP', 'LIGHT', 'JUMP', 'LIGHT', 'P2'],
-                P2: ['RIGHT', 'P1']
-              },
-              grid: g
-            };
-          } else {
-            // Cascata descendente: cada volta = 2 runas em linha reta + virar e saltar 1 degrau abaixo
-            const g = makeGrid(4, 4);
-            g[0] = [null, {h:3}, {h:3, rune:true}, {h:3, rune:true}];
-            g[1] = [null, null, null, {h:2}];
-            g[2] = [null, null, null, {h:2, rune:true}];
-            g[3] = [{h:1, rune:true}, {h:1, rune:true}, {h:1, coin:true}, {h:2, rune:true}];
-            lvl = {
-              id: i, difficulty: 'Difícil', chapter: 'Cap. 9: Recursão Cruzada',
-              name: `Cascata de Cristal #${idx - 15}`,
-              desc: 'Sincronize toda a cascata usando apenas 1 chamada no MAIN.',
-              start: { x: 1, y: 0, dir: 0 }, limits: { MAIN: 1, P1: 6, P2: 4 },
-              hintText: 'MAIN: [P1]. P1: [Avançar, Ativar Runa, Avançar, Ativar Runa, P2]. P2: [Girar Dir, Saltar, P1].',
-              solution: {
-                MAIN: ['P1'],
-                P1: ['FWD', 'LIGHT', 'FWD', 'LIGHT', 'P2'],
-                P2: ['RIGHT', 'JUMP', 'P1']
-              },
-              grid: g
-            };
-          }
-        } else {
-          const g = makeGrid(4, 5);
-          g[0] = [{h:1}, {h:1, switchBridge:true}, {h:1, bridge:true}, {h:1, rune:true}, {h:1, portal:'A'}];
-          g[1] = [null, null, null, null, null];
-          g[2] = [{h:2, portal:'A'}, {h:2, rune:true}, {h:2, portal:'B'}, null, null];
-          g[3] = [{h:3, portal:'B'}, {h:3, rune:true}, {h:3, rune:true}, {h:3, coin:true}, {h:3, rune:true}];
-          lvl = {
-            id: i, difficulty: 'Difícil', chapter: 'Cap. 10: Núcleo Ancestral',
-            name: `Protocolo Ômega #${idx - 30}`,
-            desc: 'O desafio supremo: combine ponte holográfica, portais A/B e sub-rotinas compactas.',
-            start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 3, P1: 6, P2: 6 },
-            hintText: 'MAIN: [P1, P2, P2]. P1: [Avançar, Avançar, Avançar, Ativar Runa, Avançar] (ponte + portal A). P2: [Avançar, Ativar Runa, Avançar, Avançar, Ativar Runa].',
-            solution: {
-              MAIN: ['P1', 'P2', 'P2'],
-              P1: ['FWD', 'FWD', 'FWD', 'LIGHT', 'FWD'],
-              P2: ['FWD', 'LIGHT', 'FWD', 'FWD', 'LIGHT']
-            },
-            grid: g
-          };
+      // Caminho livre (só MAIN): segmentos retos separados por curvas
+      function randWalk(rng, segs, runes, jumps) {
+        const runeSegs = new Set([segs - 1]);
+        while (runeSegs.size < Math.min(runes, segs)) runeSegs.add(randInt(rng, 0, segs - 1));
+        const out = [];
+        for (let s = 0; s < segs; s++) {
+          const len = randInt(rng, 1, 3);
+          for (let k = 0; k < len; k++) out.push(randStep(rng, jumps));
+          if (runeSegs.has(s) && runes > 0) out.push('LIGHT');
+          if (s < segs - 1) out.push(rng() < 0.5 ? 'LEFT' : 'RIGHT');
         }
-
-        lvl.optimal = lvl.solution.MAIN.length + lvl.solution.P1.length + lvl.solution.P2.length;
-        lvl.reward = 75 + Math.floor(idx / 4) * 8;
-        list.push(lvl);
+        return out;
       }
 
-      // Self-verification check during boot
-      for (const l of list) {
-        // Garante que a solução de referência sempre caiba nos slots disponíveis
-        for (const r of ['MAIN', 'P1', 'P2']) {
-          const need = (l.solution[r] || []).length;
-          if (need > (l.limits[r] || 0)) l.limits[r] = need;
-        }
-        if (!simulateHeadless(l, l.solution)) {
-          const bfsPath = solveLevelBFS(l);
-          if (bfsPath) {
-            l.limits.MAIN = Math.max(l.limits.MAIN, bfsPath.length);
-            l.solution = { MAIN: bfsPath, P1: [], P2: [] };
-            l.optimal = bfsPath.length;
+      // Executa o programa (com tags) e constrói a ilha por onde o guardião passa
+      function traceProgram(prog, startDir, runeTarget, rng) {
+        const steps = [];
+        let lights = 0, done = false, runtimeSteps = 0;
+        (function expand(r, depth) {
+          if (depth > 24) return;
+          for (const c of prog[r]) {
+            if (done || runtimeSteps >= 170) return;
+            runtimeSteps++;
+            if (c === 'P1' || c === 'P2') { expand(c, depth + 1); continue; }
+            steps.push(c);
+            if (c === 'LIGHT' && ++lights >= runeTarget) { done = true; return; }
+          }
+        })('MAIN', 0);
+        if (!done && isFinite(runeTarget)) return null;
+
+        const cells = new Map();
+        const K = (x, y) => `${x},${y}`;
+        const special = new Set();
+        let x = 0, y = 0, h = 0, dir = startDir, portals = 0;
+        cells.set(K(0, 0), { h: 0 });
+
+        for (const s of steps) {
+          if (s === 'LEFT') { dir = (dir + 3) % 4; continue; }
+          if (s === 'RIGHT') { dir = (dir + 1) % 4; continue; }
+          if (s === 'LIGHT') {
+            const c = cells.get(K(x, y));
+            if (c.rune) return null;
+            c.rune = true;
+            continue;
+          }
+          const v = DIR_VECTORS[dir];
+          const nx = x + v.dx, ny = y + v.dy, k = K(nx, ny);
+          const nh = h + (s === 'JUMP_UP' ? 1 : s === 'JUMP_DOWN' ? -1 : 0);
+          const ex = cells.get(k);
+          if (s === 'FWD_PORTAL' || s === 'FWD_SWITCH' || s === 'FWD_BRIDGE') {
+            if (ex) return null;
+          }
+          if (ex) {
+            if (special.has(k) || ex.h !== nh) return null;
+          } else {
+            cells.set(k, { h: nh });
+          }
+          const cell = cells.get(k);
+          x = nx; y = ny; h = nh;
+
+          if (s === 'FWD_SWITCH') { cell.switchBridge = true; special.add(k); }
+          if (s === 'FWD_BRIDGE') { cell.bridge = true; }
+          if (s === 'FWD_PORTAL') {
+            const L = portals++ === 0 ? 'A' : 'B';
+            cell.portal = L;
+            special.add(k);
+            const p = DIR_VECTORS[(dir + 1) % 4];
+            const fwd = randInt(rng, 2, 3), side = randInt(rng, -2, 2);
+            const dx = x + v.dx * fwd + p.dx * side, dy = y + v.dy * fwd + p.dy * side;
+            const dk = K(dx, dy);
+            if (cells.has(dk)) return null;
+            const dh = h + randInt(rng, -1, 1);
+            cells.set(dk, { h: dh, portal: L });
+            special.add(dk);
+            x = dx; y = dy; h = dh;
           }
         }
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, minH = Infinity, maxH = -Infinity;
+        for (const [key, c] of cells) {
+          const [cx, cy] = key.split(',').map(Number);
+          minX = Math.min(minX, cx); maxX = Math.max(maxX, cx);
+          minY = Math.min(minY, cy); maxY = Math.max(maxY, cy);
+          minH = Math.min(minH, c.h); maxH = Math.max(maxH, c.h);
+        }
+        const cols = maxX - minX + 1, rows = maxY - minY + 1;
+        if (cols > 7 || rows > 7 || maxH - minH > 4) return null;
+        if (cols * rows < 3) return null;
+
+        const g = makeGrid(rows, cols);
+        const pathKeys = [];
+        for (const [key, c] of cells) {
+          const [cx, cy] = key.split(',').map(Number);
+          g[cy - minY][cx - minX] = { ...c, h: c.h - minH + 1 };
+          pathKeys.push([cx - minX, cy - minY]);
+        }
+        const sx = -minX, sy = -minY;
+
+        // Decoração: moeda bônus no caminho e lajes extras (becos sem saída)
+        const plain = pathKeys.filter(([cx, cy]) => {
+          const c = g[cy][cx];
+          return !(cx === sx && cy === sy) && !c.rune && !c.portal && !c.switchBridge && !c.bridge;
+        });
+        if (plain.length && rng() < 0.6) {
+          const [cx, cy] = pick(rng, plain);
+          g[cy][cx].coin = true;
+        }
+        const decoys = randInt(rng, 0, 2);
+        for (let d = 0; d < decoys; d++) {
+          const [cx, cy] = pick(rng, pathKeys);
+          const v = DIR_VECTORS[randInt(rng, 0, 3)];
+          const tx = cx + v.dx, ty = cy + v.dy;
+          if (ty < 0 || tx < 0 || ty >= rows || tx >= cols || g[ty][tx]) continue;
+          const base = g[cy][cx];
+          if (base.portal || base.bridge) continue;
+          g[ty][tx] = { h: Math.max(1, Math.min(5, base.h + randInt(rng, -1, 1))) };
+        }
+
+        return { grid: g, start: { x: sx, y: sy, dir: startDir } };
+      }
+
+      const toSolution = (prog) => ({
+        MAIN: prog.MAIN.map(c => TAG_CMD[c]),
+        P1: (prog.P1 || []).map(c => TAG_CMD[c]),
+        P2: (prog.P2 || []).map(c => TAG_CMD[c])
+      });
+      const countLights = (arr) => arr.filter(c => c === 'LIGHT').length;
+
+      // ---------------- Capítulos ----------------
+      const CHAPTERS = [
+        { from: 4, to: 10, difficulty: 'Fácil', minCells: 4, minRunes: 1, chapter: 'Cap. 1: Primeiros Passos',
+          names: ['Trilha do Musgo', 'Curva da Raiz', 'Passarela de Pedra', 'Atalho do Vagalume', 'Caminho Sinuoso', 'Jardim Suspenso', 'Encruzilhada Antiga'],
+          desc: 'Navegue pelas curvas da ilha e acenda todos os altares circulares.',
+          build: (i, rng) => {
+            const segs = Math.min(4, 2 + Math.floor((i - 4) / 3) + randInt(rng, 0, 1));
+            const runes = 1 + Math.floor((i - 4) / 3);
+            return { prog: { MAIN: randWalk(rng, segs, runes, false) }, mainOnly: true };
+          } },
+        { from: 11, to: 20, difficulty: 'Fácil', minCells: 5, minRunes: 1, chapter: 'Cap. 2: Saltos & Terraços',
+          names: ['Terraço do Eco', 'Degraus do Vento', 'Mirante Partido', 'Escadaria Torta', 'Colina dos Ecos', 'Platô Flutuante', 'Rampa dos Ventos', 'Morro das Runas', 'Cascalho Alto', 'Vale dos Degraus'],
+          desc: 'Domine os saltos de subida e descida entre terraços de pedra.',
+          build: (i, rng) => {
+            const segs = Math.min(4, 2 + Math.floor((i - 11) / 4) + randInt(rng, 0, 1));
+            const runes = 1 + Math.floor((i - 11) / 4);
+            const walk = randWalk(rng, segs, runes, true);
+            if (walk.filter(c => c.startsWith('JUMP')).length < 2) return null;
+            return { prog: { MAIN: walk }, mainOnly: true };
+          } },
+        { from: 21, to: 30, difficulty: 'Fácil', minCells: 5, minRunes: 1, chapter: 'Cap. 3: Portais & Pontes',
+          names: ['Fenda Ciano', 'Ponte de Luz', 'Salto Dimensional', 'Selo Dourado', 'Portal do Crepúsculo', 'Travessia Holográfica', 'Elo Distante', 'Arco Luminoso', 'Atalho Quântico', 'Passagem do Abismo'],
+          desc: (i) => i % 2 === 1
+            ? 'Entre no Portal para atravessar instantaneamente até o outro lado da ilha!'
+            : 'Pise no selo dourado para materializar a ponte holográfica sobre o abismo.',
+          build: (i, rng) => {
+            const pre = randWalk(rng, 1, i >= 25 && rng() < 0.5 ? 1 : 0, false);
+            let mid;
+            if (i % 2 === 1) {
+              mid = ['FWD_PORTAL'];
+            } else {
+              mid = ['FWD_SWITCH'];
+              if (rng() < 0.5) mid.push(rng() < 0.5 ? 'LEFT' : 'RIGHT');
+              if (rng() < 0.5) mid.push('FWD');
+              mid.push('FWD_BRIDGE');
+              if (i >= 26) mid.push('FWD_BRIDGE');
+            }
+            const turn = rng() < 0.5 ? [] : [rng() < 0.5 ? 'LEFT' : 'RIGHT'];
+            const post = randWalk(rng, randInt(rng, 1, 2), i >= 25 ? 2 : 1, i >= 27);
+            return { prog: { MAIN: [...pre, ...mid, ...turn, ...post] }, mainOnly: true };
+          } },
+        { from: 31, to: 40, difficulty: 'Fácil', minCells: 5, minRunes: 2, chapter: 'Cap. 4: Poder das Funções',
+          names: ['Eco de Função', 'Rotina do Guardião', 'Passo Repetido', 'Ritmo Rúnico', 'Laço de Pedra', 'Dança Modular', 'Padrão Ancestral', 'Marcha das Runas', 'Ciclo do Musgo', 'Refrão de Cristal'],
+          desc: 'Use PROC 1 (P1) para repetir a mesma sequência sem lotar o MAIN!',
+          build: (i, rng) => {
+            const p1 = randPattern(rng, randInt(rng, 2, 4), { jumps: i >= 36 });
+            if (!p1) return null;
+            const k = randInt(rng, 2, 4);
+            return { prog: { MAIN: Array(k).fill('P1'), P1: p1 } };
+          } },
+        { from: 41, to: 55, difficulty: 'Médio', minCells: 6, minRunes: 2, chapter: 'Cap. 5: Geometria & Padrões',
+          names: ['Zigue-Zague Rúnico', 'Arcos do Aqueduto', 'Muralha Elevada', 'Escada Modular', 'Ondas de Pedra', 'Serra Dentada', 'Degraus Gêmeos', 'Trilha Ondulada', 'Picos Alternados', 'Cristas do Vale', 'Relevo Rítmico', 'Platôs em Série', 'Escarpa Modular', 'Ladeira Tripla', 'Colinas em Eco'],
+          desc: 'Encontre o padrão escondido no relevo e encapsule-o dentro de P1.',
+          build: (i, rng) => {
+            const p1 = randPattern(rng, randInt(rng, 3, 6), { jumps: true });
+            if (!p1) return null;
+            const main = Array(randInt(rng, 2, 4)).fill('P1');
+            if (i % 2 === 1) main.splice(randInt(rng, 1, main.length - 1), 0, pick(rng, ['LEFT', 'RIGHT', 'FWD']));
+            return { prog: { MAIN: main, P1: p1 } };
+          } },
+        { from: 56, to: 70, difficulty: 'Médio', minCells: 7, minRunes: 3, chapter: 'Cap. 6: Dupla Arquitetura (P1+P2)',
+          names: ['Corredores Paralelos', 'Rampas Gêmeas', 'Dupla Hélice', 'Pacto P1+P2', 'Engrenagem Dupla', 'Trama Rúnica', 'Mosaico Duplo', 'Labirinto Binário', 'Teia de Rotinas', 'Coral de Pedra', 'Duo Ancestral', 'Malha Cruzada', 'Ponte Dupla', 'Ritmo Alternado', 'Simetria Oculta'],
+          desc: 'Divida o trabalho: dois padrões diferentes, um em P1 e outro em P2.',
+          build: (i, rng) => {
+            const p1 = randPattern(rng, randInt(rng, 2, 5), { jumps: i >= 60 });
+            const p2 = randPattern(rng, randInt(rng, 2, 4), { jumps: i >= 60, needLight: false });
+            if (!p1 || !p2 || p1.join() === p2.join()) return null;
+            const main = pick(rng, [
+              ['P1', 'P2', 'P1'], ['P1', 'P1', 'P2', 'P1', 'P1'], ['P2', 'P1', 'P2', 'P1'],
+              ['P1', 'P2', 'P2', 'P1'], ['P1', 'P2', 'P1', 'P2', 'P1'], ['P2', 'P1', 'P1', 'P2']
+            ]);
+            return { prog: { MAIN: main, P1: p1, P2: p2 } };
+          } },
+        { from: 71, to: 80, difficulty: 'Médio', minCells: 8, minRunes: 2, chapter: 'Cap. 7: Circuitos Dimensionais',
+          names: ['Rede de Portais', 'Circuito Estelar', 'Ponte Modular', 'Nexo Dimensional', 'Fenda Programada', 'Circuito Dourado', 'Portal Rotineiro', 'Selo Encadeado', 'Salto em Rede', 'Matriz de Luz'],
+          desc: (i) => i % 2 === 1
+            ? 'Combine sub-rotinas com o Portal para cruzar a ilha.'
+            : 'Ative a ponte de luz no meio do programa e siga com sub-rotinas.',
+          build: (i, rng) => {
+            const p1 = randPattern(rng, randInt(rng, 2, 4), { jumps: true });
+            const p2 = randPattern(rng, randInt(rng, 2, 4), { jumps: true });
+            if (!p1 || !p2 || p1.join() === p2.join()) return null;
+            const mid = i % 2 === 1 ? ['FWD_PORTAL'] : ['FWD_SWITCH', 'FWD_BRIDGE'];
+            const main = [...Array(randInt(rng, 1, 2)).fill('P1'), ...mid, ...Array(randInt(rng, 1, 3)).fill('P2')];
+            return { prog: { MAIN: main, P1: p1, P2: p2 } };
+          } },
+        { from: 81, to: 95, difficulty: 'Difícil', minCells: 6, minRunes: 3, chapter: 'Cap. 8: Recursão Infinita',
+          names: ['Loop Recursivo', 'Eco Infinito', 'Espelho Sem Fim', 'Retorno Eterno', 'Chamada Profunda', 'Fractal de Pedra', 'Ciclo Vivo', 'Repetição Ancestral', 'Serpente Rúnica', 'Pilha de Chamadas', 'Escada Infinita', 'Labirinto Recursivo', 'Espiral Viva', 'Ouroboros', 'Eco do Abismo'],
+          desc: 'O MAIN tem apenas 1 slot! Faça P1 chamar a si mesmo no final para repetir até a vitória.',
+          recursive: true,
+          build: (i, rng) => {
+            const a = randPattern(rng, randInt(rng, 2, 4), { jumps: i % 2 === 0 });
+            if (!a) return null;
+            const reps = randInt(rng, 3, 5);
+            return { prog: { MAIN: ['P1'], P1: [...a, 'P1'] }, runeTarget: countLights(a) * reps };
+          } },
+        { from: 96, to: 110, difficulty: 'Difícil', minCells: 7, minRunes: 3, chapter: 'Cap. 9: Recursão Cruzada',
+          names: ['Espiral Eterna', 'Cascata de Cristal', 'Diálogo de Rotinas', 'Pingue-Pongue Rúnico', 'Recursão Cruzada', 'Tango Infinito', 'Dupla Recursiva', 'Elo Mútuo', 'Ciranda Astral', 'Ponte de Chamadas', 'Gêmeos Eternos', 'Vai-e-Vem', 'Hélice Cruzada', 'Laço Duplo', 'Nó Celestial'],
+          desc: 'P1 chama P2 e P2 chama P1 de volta: um ciclo que só termina quando todas as runas acendem.',
+          recursive: true,
+          build: (i, rng) => {
+            const a = randPattern(rng, randInt(rng, 2, 4), { jumps: true });
+            const b = randPattern(rng, randInt(rng, 1, 3), { jumps: true, needLight: false, needMove: false });
+            if (!a || !b) return null;
+            const reps = randInt(rng, 2, 4);
+            return { prog: { MAIN: ['P1'], P1: [...a, 'P2'], P2: [...b, 'P1'] }, runeTarget: (countLights(a) + countLights(b)) * reps };
+          } },
+        { from: 111, to: 120, difficulty: 'Difícil', minCells: 8, minRunes: 3, chapter: 'Cap. 10: Núcleo Ancestral',
+          names: ['Protocolo Ômega', 'Núcleo Ancestral', 'Coração da Ilha', 'Código Primordial', 'Selo Final', 'Câmara do Núcleo', 'Fórmula Suprema', 'Eixo do Mundo', 'Último Guardião', 'Runa Mestra'],
+          desc: 'O desafio supremo: combine ponte, portais e recursão com o MAIN quase vazio.',
+          recursive: true,
+          build: (i, rng) => {
+            const a = randPattern(rng, randInt(rng, 2, 4), { jumps: true });
+            if (!a) return null;
+            const prefix = i % 4 === 0 ? ['FWD_SWITCH', 'FWD_BRIDGE', 'FWD_PORTAL'] : i % 2 === 1 ? ['FWD_SWITCH', 'FWD_BRIDGE'] : ['FWD_PORTAL'];
+            const reps = randInt(rng, 3, 4);
+            if (rng() < 0.5) {
+              return { prog: { MAIN: [...prefix, 'P1'], P1: [...a, 'P1'] }, runeTarget: countLights(a) * reps };
+            }
+            const b = randPattern(rng, randInt(rng, 1, 3), { jumps: true, needLight: false, needMove: false });
+            if (!b) return null;
+            return { prog: { MAIN: [...prefix, 'P1'], P1: [...a, 'P2'], P2: [...b, 'P1'] }, runeTarget: (countLights(a) + countLights(b)) * reps };
+          } }
+      ];
+
+      const NAMES_CMD = { FWD: 'Avançar', LEFT: 'Girar Esq', RIGHT: 'Girar Dir', JUMP: 'Saltar', LIGHT: 'Ativar Runa', P1: 'P1', P2: 'P2' };
+
+      function buildHint(ch, sol, runes) {
+        const n1 = sol.P1.length, n2 = sol.P2.length;
+        const calls = (r) => sol.MAIN.filter(c => c === r).length;
+        if (!n1 && !n2) {
+          return `Acenda ${runes} runa${runes > 1 ? 's' : ''}. Conte as lajes antes de cada curva e use Saltar onde a altura muda. Dá para resolver com ${sol.MAIN.length} blocos.`;
+        }
+        if (ch.recursive) {
+          let t = `O MAIN chama P1 uma vez${sol.MAIN.length > 1 ? `, depois de ${sol.MAIN.length - 1} comando(s) de travessia` : ''}. P1 tem ${n1} blocos e termina chamando ${sol.P1[n1 - 1]}.`;
+          if (n2) t += ` P2 tem ${n2} blocos e termina chamando P1.`;
+          return t + ' Observe o trecho que se repete na ilha.';
+        }
+        let t = `P1 tem ${n1} blocos e o MAIN chama P1 ${calls('P1')} vez${calls('P1') > 1 ? 'es' : ''}.`;
+        if (n2) t += ` P2 tem ${n2} blocos e é chamada ${calls('P2')} vez${calls('P2') > 1 ? 'es' : ''}.`;
+        return t + ' Procure o trecho da ilha que se repete.';
+      }
+
+      const seen = new Set();
+      // Assinatura canônica: o mesmo desenho (mesmo girado, espelhado ou com outras alturas) conta como repetido
+      function signature(l) {
+        let g = l.grid.map(r => r.map(c => c ? `#${c.rune ? 'r' : ''}${c.portal ? 'p' : ''}${c.switchBridge ? 's' : ''}${c.bridge ? 'b' : ''}` : '.'));
+        const rot = (m) => m[0].map((_, x) => m.map(row => row[x]).reverse());
+        const variants = [];
+        for (let k = 0; k < 4; k++) {
+          variants.push(JSON.stringify(g));
+          variants.push(JSON.stringify(g.map(row => [...row].reverse())));
+          g = rot(g);
+        }
+        return variants.sort()[0];
+      }
+
+      // Fases 1–3: tutorial feito à mão
+      {
+        const g1 = makeGrid(3, 4);
+        g1[1] = [{h:1}, {h:1}, {h:1}, {h:1, rune:true}];
+        list.push({
+          id: 1, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
+          name: 'O Despertar da Ilha',
+          desc: 'Avance 3 lajes até o altar circular e acenda a runa ancestral.',
+          start: { x: 0, y: 1, dir: 0 }, limits: { MAIN: 8, P1: 0, P2: 0 },
+          hintText: 'Use 3x Avançar (⬆️) e 1x Ativar Runa (💠) no MAIN.',
+          solution: { MAIN: ['FWD', 'FWD', 'FWD', 'LIGHT'], P1: [], P2: [] },
+          grid: g1
+        });
+        const g2 = makeGrid(3, 3);
+        g2[0] = [{h:1}, {h:1, coin:true}, {h:1}];
+        g2[1] = [null, null, {h:1}];
+        g2[2] = [null, null, {h:1, rune:true}];
+        list.push({
+          id: 2, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
+          name: 'A Curva do Santuário',
+          desc: 'Vire à direita na esquina para alcançar o altar.',
+          start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 10, P1: 0, P2: 0 },
+          hintText: 'Avance 2x, gire à direita (↱), avance 2x e ative!',
+          solution: { MAIN: ['FWD', 'FWD', 'RIGHT', 'FWD', 'FWD', 'LIGHT'], P1: [], P2: [] },
+          grid: g2
+        });
+        const g3 = makeGrid(1, 5);
+        g3[0] = [{h:1}, {h:1}, {h:2}, {h:3}, {h:3, rune:true}];
+        list.push({
+          id: 3, difficulty: 'Fácil', chapter: 'Cap. 1: Primeiros Passos',
+          name: 'Degraus Esculpidos',
+          desc: 'Use Saltar (🦘) sempre que o terreno subir ou descer 1 degrau.',
+          start: { x: 0, y: 0, dir: 0 }, limits: { MAIN: 10, P1: 0, P2: 0 },
+          hintText: 'Avance, salte 2 degraus, avance e ative a runa.',
+          solution: { MAIN: ['FWD', 'JUMP', 'JUMP', 'FWD', 'LIGHT'], P1: [], P2: [] },
+          grid: g3
+        });
+        list.forEach(l => seen.add(signature(l)));
+      }
+
+      for (const ch of CHAPTERS) {
+        for (let i = ch.from; i <= ch.to; i++) {
+          let lvl = null;
+          for (let attempt = 0; attempt < 4000 && !lvl; attempt++) {
+            const rng = mulberry32(i * 7919 + attempt * 104729 + 17);
+            const spec = ch.build(i, rng);
+            if (!spec) continue;
+            const startDir = randInt(rng, 0, 3);
+            const progFull = { MAIN: spec.prog.MAIN, P1: spec.prog.P1 || [], P2: spec.prog.P2 || [] };
+            const traced = traceProgram(progFull, startDir, spec.runeTarget || Infinity, rng);
+            if (!traced) continue;
+            const runes = traced.grid.flat().filter(c => c && c.rune).length;
+            const cellCount = traced.grid.flat().filter(Boolean).length;
+            if (runes < ch.minRunes || cellCount < ch.minCells) continue;
+
+            let solution = toSolution(progFull);
+            const cand = {
+              id: i, difficulty: ch.difficulty, chapter: ch.chapter,
+              name: ch.names[i - ch.from] || `${ch.names[0]} #${i - ch.from + 1}`,
+              desc: typeof ch.desc === 'function' ? ch.desc(i) : ch.desc,
+              start: traced.start, grid: traced.grid, solution
+            };
+            if (!simulateHeadless(cand, solution)) continue;
+            if (spec.mainOnly) {
+              const bfs = solveLevelBFS(cand);
+              if (bfs && bfs.length < solution.MAIN.length && simulateHeadless(cand, { MAIN: bfs, P1: [], P2: [] })) {
+                solution = { MAIN: bfs, P1: [], P2: [] };
+                cand.solution = solution;
+              }
+            }
+            const sig = signature(cand);
+            if (seen.has(sig)) continue;
+
+            const slack = spec.mainOnly ? 2 : 1;
+            cand.limits = {
+              MAIN: ch.recursive ? solution.MAIN.length : solution.MAIN.length + slack,
+              P1: solution.P1.length ? Math.min(8, solution.P1.length + 1) : 0,
+              P2: solution.P2.length ? Math.min(8, solution.P2.length + 1) : 0
+            };
+            cand.hintText = buildHint(ch, solution, runes);
+            seen.add(sig);
+            lvl = cand;
+          }
+          if (!lvl) throw new Error(`Falha ao gerar a fase ${i}`);
+          list.push(lvl);
+        }
+      }
+
+      for (const lvl of list) {
+        lvl.optimal = lvl.solution.MAIN.length + lvl.solution.P1.length + lvl.solution.P2.length;
+        const i = lvl.id;
+        lvl.reward = i <= 40 ? 25 + Math.floor(i / 5) * 5 : i <= 80 ? 45 + Math.floor((i - 40) / 5) * 6 : 75 + Math.floor((i - 80) / 4) * 8;
       }
       return list;
     })();
