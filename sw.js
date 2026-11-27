@@ -1,5 +1,5 @@
 // RunaQuest service worker: network-first com fallback para cache (funciona offline após 1ª visita)
-const CACHE = 'runaquest-v3';
+const CACHE = 'runaquest-v4';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -15,6 +15,8 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  // Métricas (GoatCounter): sempre pela rede, nunca no cache.
+  if (/goatcounter\.com|gc\.zgo\.at/.test(e.request.url)) return;
   if (e.request.method !== 'GET') return;
   e.respondWith(
     fetch(e.request)
